@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bearded Audio Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        
+        @keyframes scan2 {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        
+        @keyframes phosphor {
+          0% { opacity: 0.1; }
+          100% { opacity: 0.3; }
+        }
+        
+        .scan-line-1 {
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+            animation: scan 50s linear infinite;
+            mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 8%, rgba(0,0,0,0.5) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 70%, rgba(0,0,0,0.5) 85%, rgba(0,0,0,0.2) 92%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 8%, rgba(0,0,0,0.5) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 70%, rgba(0,0,0,0.5) 85%, rgba(0,0,0,0.2) 92%, transparent 100%);
+        }
+        
+        .scan-line-2 {
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 6px);
+            animation: scan2 70s linear infinite reverse;
+            mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 5%, rgba(0,0,0,0.4) 12%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 70%, rgba(0,0,0,0.7) 80%, rgba(0,0,0,0.4) 88%, rgba(0,0,0,0.2) 95%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 5%, rgba(0,0,0,0.4) 12%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 70%, rgba(0,0,0,0.7) 80%, rgba(0,0,0,0.4) 88%, rgba(0,0,0,0.2) 95%, transparent 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gray-300 relative overflow-hidden">
+        <!-- CRT Effects -->
+        <div class="fixed inset-0 pointer-events-none z-50" style="background: radial-gradient(ellipse 90% 90% at center, transparent 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0.8) 100%); border-radius: 20px;"></div>
+        <div class="fixed inset-0 pointer-events-none z-40 opacity-40 scan-line-1"></div>
+        <div class="fixed inset-0 pointer-events-none z-39 opacity-20 scan-line-2"></div>
+        <div class="fixed inset-0 pointer-events-none z-30 opacity-20" style="background: radial-gradient(circle at 50% 50%, rgba(0,255,255,0.2) 0%, transparent 70%); animation: phosphor 2s ease-in-out infinite alternate;"></div>
+        <div class="fixed inset-0 pointer-events-none z-35 opacity-10" style="background: linear-gradient(90deg, rgba(255,0,0,0.1) 0%, rgba(0,255,0,0.1) 50%, rgba(0,0,255,0.1) 100%); mix-blend-mode: multiply;"></div>
+
+        <!-- Header -->
+        <header class="bg-gray-200 border-b-2 border-gray-400 sticky top-0 z-50 relative" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3);">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-2xl font-bold text-gray-900" style="text-shadow: 2px 2px 0px rgba(255,255,255,0.5), 1px 1px 0px rgba(0,255,255,0.3);">
+                            Bearded Audio
+                        </h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden sm:flex items-center bg-gray-900 text-green-400 px-3 py-1 text-xs font-mono border-2 border-gray-700 gap-3" style="box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 8px rgba(0,255,100,0.3); text-shadow: 0 0 8px rgba(0,255,100,0.8);">
+                            <div class="flex flex-col items-center leading-tight">
+                                <span class="text-green-600 text-[10px]">YOU</span>
+                                <span id="user-time" class="tracking-wider">12:00</span>
+                            </div>
+                            <div class="w-px h-6 bg-green-800"></div>
+                            <div class="flex flex-col items-center leading-tight">
+                                <span class="text-green-600 text-[10px]">IAN</span>
+                                <span id="ian-time" class="tracking-wider">12:00</span>
+                            </div>
+                        </div>
+                        
+                        <nav id="desktop-nav" class="hidden md:flex bg-gray-100 border-2 border-gray-400 overflow-hidden" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(0,255,255,0.2);">
+                            <button onclick="showPage('home')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 border-r border-gray-400 text-gray-900 hover:bg-gray-200">
+                                <span>Home</span>
+                            </button>
+                            <button onclick="showPage('podcasts')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 border-r border-gray-400 text-gray-900 hover:bg-gray-200">
+                                <span>Podcasts</span>
+                            </button>
+                            <button onclick="showPage('music')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 border-r border-gray-400 text-gray-900 hover:bg-gray-200">
+                                <span>Music</span>
+                            </button>
+                            <button onclick="showPage('games')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 border-r border-gray-400 text-gray-900 hover:bg-gray-200">
+                                <span>Games</span>
+                            </button>
+                            <button onclick="showPage('asmr')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 border-r border-gray-400 text-gray-900 hover:bg-gray-200">
+                                <span>ASMR</span>
+                            </button>
+                            <button onclick="showPage('contact')" class="nav-btn flex items-center space-x-2 px-4 py-2 font-bold text-sm transition-all duration-200 text-gray-900 hover:bg-gray-200">
+                                <span>Contact</span>
+                            </button>
+                        </nav>
+
+                        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-900 bg-gray-100 border-2 border-gray-400 hover:bg-gray-200 transition-colors duration-200" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3), 0 0 8px rgba(0,255,255,0.2);">
+                            ☰
+                        </button>
+                    </div>
+                </div>
+
+                <nav id="mobile-menu" class="hidden md:hidden py-4 border-t-2 border-gray-400 bg-gray-100 -mx-4 px-4">
+                    <button onclick="showPage('home'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>Home</span>
+                    </button>
+                    <button onclick="showPage('podcasts'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>Podcasts</span>
+                    </button>
+                    <button onclick="showPage('music'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>Music</span>
+                    </button>
+                    <button onclick="showPage('games'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>Games</span>
+                    </button>
+                    <button onclick="showPage('asmr'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>ASMR</span>
+                    </button>
+                    <button onclick="showPage('contact'); toggleMobileMenu();" class="flex items-center space-x-3 w-full px-4 py-3 text-left font-bold transition-colors duration-200 mb-2 border border-gray-400 text-gray-900 bg-gray-200 hover:bg-gray-300">
+                        <span>Contact</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+            <!-- Home Page -->
+            <div id="page-home" class="page-content space-y-8">
+                <div class="bg-gray-200 border-2 border-gray-400 p-8 relative" style="box-shadow: inset 2px 2px 0px rgba(255,255,255,0.8), inset -2px -2px 0px rgba(0,0,0,0.3), 4px 4px 8px rgba(0,0,0,0.3);">
+                    <div class="text-center max-w-4xl mx-auto relative z-10">
+                        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-6" style="text-shadow: 2px 2px 0px rgba(255,255,255,0.5), 1px 1px 0px rgba(0,0,0,0.1);">
+                            Hey, I'm Ian
+                        </h1>
+                        
+                        <div class="text-lg leading-relaxed space-y-4 text-gray-800">
+                            <p class="bg-white p-4 border border-gray-300" style="box-shadow: inset 1px 1px 0px rgba(0,0,0,0.1), 1px 1px 2px rgba(0,0,0,0.2);">
+                                I'm a freelance audio editor, working on everything from podcasts and audiobooks, 
+                                to music and ASMR, with some game audio in there for good measure (I love game jams).
+                            </p>
+                            <p class="bg-white p-4 border border-gray-300" style="box-shadow: inset 1px 1px 0px rgba(0,0,0,0.1), 1px 1px 2px rgba(0,0,0,0.2);">
+                                I'm a husband and father of five kids, a huge game nut, and looking forward to meeting you. 
+                                If I'm not the person for your project, I probably know the person who is.
+                            </p>
+                        </div>
+                        
+                        <div class="mt-8 flex flex-wrap justify-center gap-4">
+                            <button onclick="showPage('contact')" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 font-bold transition-colors duration-200 border border-red-800" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.3);">
+                                Get In Touch
+                            </button>
+                            <button onclick="showPage('podcasts')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-bold transition-colors duration-200 border border-blue-800" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.3);">
+                                View My Work
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-600 border-2 border-blue-800 p-6 text-white relative" style="box-shadow: inset 2px 2px 0px rgba(255,255,255,0.2), inset -2px -2px 0px rgba(0,0,0,0.3), 4px 4px 8px rgba(0,0,0,0.3);">
+                    <h2 class="text-3xl font-bold text-center mb-6 relative z-10" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.3);">Services</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <button onclick="showPage('podcasts')" class="bg-gray-200 hover:bg-gray-100 text-gray-900 p-6 transition-colors duration-300 text-center border border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                            <div class="text-5xl mb-3">🎙</div>
+                            <h3 class="font-bold text-lg">Podcasts</h3>
+                        </button>
+                        <button onclick="showPage('music')" class="bg-gray-200 hover:bg-gray-100 text-gray-900 p-6 transition-colors duration-300 text-center border border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                            <div class="text-5xl mb-3">♫</div>
+                            <h3 class="font-bold text-lg">Music</h3>
+                        </button>
+                        <button onclick="showPage('games')" class="bg-gray-200 hover:bg-gray-100 text-gray-900 p-6 transition-colors duration-300 text-center border border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                            <div class="text-5xl mb-3">🎮</div>
+                            <h3 class="font-bold text-lg">Games</h3>
+                        </button>
+                        <button onclick="showPage('asmr')" class="bg-gray-200 hover:bg-gray-100 text-gray-900 p-6 transition-colors duration-300 text-center border border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                            <div class="text-5xl mb-3">🎧</div>
+                            <h3 class="font-bold text-lg">ASMR</h3>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-orange-600 border-2 border-orange-800 p-6 text-white relative" style="box-shadow: inset 2px 2px 0px rgba(255,255,255,0.2), inset -2px -2px 0px rgba(0,0,0,0.3), 4px 4px 8px rgba(0,0,0,0.3);">
+                    <h2 class="text-3xl font-bold text-center mb-6 relative z-10" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.3);">Current Projects</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="bg-gray-100 border border-gray-400">
+                            <div class="aspect-square bg-gray-200 flex items-center justify-center border-b border-gray-400 overflow-hidden">
+                                <img src="https://img.transistor.fm/OCmYBeqCA2UXlc4CiKySrYpnl90krA6d2j4BsLNENnY/rs:fill:0:0:1/w:800/h:800/q:60/mb:500000/aHR0cHM6Ly9pbWct/dXBsb2FkLXByb2R1/Y3Rpb24udHJhbnNp/c3Rvci5mbS85ZGM0/YWNkMzgwODYyNjY5/YTk5N2JkMDIwMTk3/NzNiYy5wbmc.jpg" alt="ADHD Founders Podcast" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-4 bg-white">
+                                <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                    <a href="http://adhdfounders.xyz" target="_blank" class="hover:text-blue-600">ADHD Founders</a>
+                                </h3>
+                                <p class="text-gray-600 text-xs mb-2">Latest Episode:</p>
+                                <p class="text-gray-800 text-sm font-medium mb-3">72: The Automation Paradox - Building Systems We Immediately Bypass</p>
+                                <audio controls class="w-full h-8" style="filter: sepia(20%) saturate(70%) grayscale(10%);">
+                                    <source src="https://media.transistor.fm/2f19d5d9/ed43c49f.mp3" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 border border-gray-400">
+                            <div class="aspect-square bg-gray-200 flex items-center justify-center border-b border-gray-400 overflow-hidden">
+                                <img src="https://storage.buzzsprout.com/jhk3kxj3o7hbyk5mezom5v63e5lj?.jpg" alt="The Abidible Podcast" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-4 bg-white">
+                                <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                    <a href="https://abidible.com" target="_blank" class="hover:text-blue-600">The Abidible Podcast</a>
+                                </h3>
+                                <p class="text-gray-600 text-xs mb-2">Latest Episode:</p>
+                                <p class="text-gray-800 text-sm font-medium mb-3">#074 "A Fear to Be Desired" (Luke 1:50)</p>
+                                <audio controls class="w-full h-8" style="filter: sepia(20%) saturate(70%) grayscale(10%);">
+                                    <source src="https://www.buzzsprout.com/2372319/episodes/18242123-074-a-fear-to-be-desired-luke-1-50.mp3" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Podcasts Page -->
+            <div id="page-podcasts" class="page-content hidden space-y-6">
+                <div class="bg-blue-600 border-2 border-blue-800 text-white p-6 relative">
+                    <h1 class="text-3xl font-bold mb-2">Podcast Engineering</h1>
+                    <p class="text-blue-100">Professional audio editing and post-production services</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-square bg-gray-200 flex items-center justify-center border-b-2 border-gray-400 overflow-hidden">
+                            <img src="https://img.transistor.fm/OCmYBeqCA2UXlc4CiKySrYpnl90krA6d2j4BsLNENnY/rs:fill:0:0:1/w:800/h:800/q:60/mb:500000/aHR0cHM6Ly9pbWct/dXBsb2FkLXByb2R1/Y3Rpb24udHJhbnNp/c3Rvci5mbS85ZGM0/YWNkMzgwODYyNjY5/YTk5N2JkMDIwMTk3/NzNiYy5wbmc.jpg" alt="ADHD Founders Podcast" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                <a href="http://adhdfounders.xyz" target="_blank" class="hover:text-blue-600">ADHD Founders</a>
+                            </h3>
+                            <p class="text-gray-600 text-xs mb-2">Latest Episode:</p>
+                            <p class="text-gray-800 text-sm font-medium mb-3">72: The Automation Paradox - Building Systems We Immediately Bypass</p>
+                            <audio controls class="w-full h-8" style="filter: sepia(20%) saturate(70%) grayscale(10%);">
+                                <source src="https://media.transistor.fm/2f19d5d9/ed43c49f.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-square bg-gray-200 flex items-center justify-center border-b-2 border-gray-400 overflow-hidden">
+                            <img src="https://storage.buzzsprout.com/jhk3kxj3o7hbyk5mezom5v63e5lj?.jpg" alt="The Abidible Podcast" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                <a href="https://abidible.com" target="_blank" class="hover:text-blue-600">The Abidible Podcast</a>
+                            </h3>
+                            <p class="text-gray-600 text-xs mb-2">Latest Episode:</p>
+                            <p class="text-gray-800 text-sm font-medium mb-3">#074 "A Fear to Be Desired" (Luke 1:50)</p>
+                            <audio controls class="w-full h-8" style="filter: sepia(20%) saturate(70%) grayscale(10%);">
+                                <source src="https://www.buzzsprout.com/2372319/episodes/18242123-074-a-fear-to-be-desired-luke-1-50.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-square bg-gray-200 flex items-center justify-center border-b-2 border-gray-400 overflow-hidden">
+                            <img src="https://pbcdn1.podbean.com/imglogo/image-logo/7195087/RnR_14_by_14.jpg" alt="Roll for Relaxation Podcast" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                <a href="https://rollforrelaxation.podbean.com" target="_blank" class="hover:text-blue-600">Roll for Relaxation</a>
+                            </h3>
+                            <p class="text-gray-600 text-xs mb-2">Latest Episode:</p>
+                            <p class="text-gray-800 text-sm font-medium mb-3">Episode 12: Five Wines</p>
+                            <audio controls class="w-full h-8" style="filter: sepia(20%) saturate(70%) grayscale(10%);">
+                                <source src="https://mcdn.podbean.com/mf/web/cjsu6j/RnREpisode12FinalAudio.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Music Page -->
+            <div id="page-music" class="page-content hidden space-y-6">
+                <div class="bg-gray-600 border-2 border-gray-800 text-white p-6 relative">
+                    <h1 class="text-3xl font-bold mb-2">Music Production</h1>
+                    <p class="text-gray-200">Original compositions and multi-genre production work</p>
+                </div>
+                <div class="text-center text-gray-800 text-lg py-8">Music projects content coming soon...</div>
+            </div>
+
+            <!-- Games Page -->
+            <div id="page-games" class="page-content hidden space-y-6">
+                <div class="bg-red-600 border-2 border-red-800 text-white p-6 relative">
+                    <h1 class="text-3xl font-bold mb-2">Game Sound Design</h1>
+                    <p class="text-red-100">Interactive audio systems and immersive soundscapes</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-gray-800 flex items-center justify-center border-b-2 border-gray-400 overflow-hidden">
+                            <img src="https://img.itch.zone/aW1nLzExNDc4MzE0LnBuZw==/315x250%23c/JZ%2BKwH.png" alt="Who Let The Dogs Out?" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                <a href="https://windmillgames.itch.io/who-let-the-dogs-out" target="_blank" class="hover:text-red-600">Who Let The Dogs Out?</a>
+                            </h3>
+                            <div class="flex flex-wrap gap-2 my-2">
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 border border-red-300">Point & Click</span>
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 border border-blue-300">Detective</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 border border-green-300">Voice Acting</span>
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 border border-purple-300">LÖVE Jam 2023</span>
+                            </div>
+                            <p class="text-gray-700 text-sm mb-3">A fully-voiced story-driven point & click adventure game. Play as a detective solving mysteries at a farm — interrogate suspects, search for clues with your magnifying glass, and piece together the evidence to find the culprit.</p>
+                            <div class="bg-gray-100 border border-gray-300 p-3 text-sm">
+                                <p class="font-bold text-gray-800 mb-1">Role: Sound FX</p>
+                                <p class="text-gray-600 text-xs italic">"Detective game on point! Amazing audio which sets the mood just right." — Jam Review</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-gray-800 flex items-center justify-center border-b-2 border-gray-400 overflow-hidden">
+                            <img src="https://img.itch.zone/aW1nLzU4NTk1NjIucG5n/315x250%23c/yVy%2BBF.png" alt="Disco Inferno" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 border-b border-gray-300 pb-1">
+                                <a href="https://windmillgames.itch.io/disco-inferno" target="_blank" class="hover:text-red-600">Disco Inferno</a>
+                            </h3>
+                            <div class="flex flex-wrap gap-2 my-2">
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 border border-red-300">Top-Down Shooter</span>
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 border border-blue-300">Bullet Hell</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 border border-green-300">Pixel Art</span>
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 border border-purple-300">Ludum Dare 48</span>
+                            </div>
+                            <p class="text-gray-700 text-sm mb-3">Welcome to bullet hell! A fast-paced top-down shooter with slick pixel art visuals. Dodge, shoot, and dance your way through waves of enemies in this arcade-style action game.</p>
+                            <div class="bg-gray-100 border border-gray-300 p-3 text-sm">
+                                <p class="font-bold text-gray-800 mb-1">Role: Sound Design</p>
+                                <p class="text-gray-600 text-xs italic">Created for Ludum Dare 48 game jam</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-200 border-2 border-gray-400 p-6 text-center" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                    <p class="text-gray-700 text-lg mb-2">🎮 Love game jams!</p>
+                    <p class="text-gray-600">More projects coming soon. Interested in collaborating on your next game jam or indie project?</p>
+                    <button onclick="showPage('contact')" class="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 font-bold transition-colors duration-200 border border-red-800" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.3);">
+                        Get In Touch
+                    </button>
+                </div>
+            </div>
+
+            <!-- ASMR Page -->
+            <div id="page-asmr" class="page-content hidden space-y-6">
+                <div class="bg-orange-600 border-2 border-orange-800 text-white p-6 relative">
+                    <h1 class="text-3xl font-bold mb-2">ASMR Content</h1>
+                    <p class="text-orange-100">Relaxing audio experiences with an emphasis on sound design</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-black border-b-2 border-gray-400">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/QKT9YT3xE24" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-black border-b-2 border-gray-400">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/xIHxZfB63M8" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-black border-b-2 border-gray-400">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/axPtvvmbheI" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 border-2 border-gray-400" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="aspect-video bg-black border-b-2 border-gray-400">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/BfPtyFfqdkU" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-200 border-2 border-gray-400 p-6 text-center" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                    <p class="text-gray-700 text-lg mb-4">🎧 Find more ASMR content on my YouTube channel</p>
+                    <a href="https://www.youtube.com/channel/UCyQg2xyQHM_p94aFSGZanZg" target="_blank" class="inline-block bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 font-bold transition-colors duration-200 border border-orange-800" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.3);">
+                        Subscribe on YouTube
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Page -->
+            <div id="page-contact" class="page-content hidden">
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="bg-red-600 border-2 border-red-800 text-white p-6 relative">
+                        <h1 class="text-3xl font-bold mb-2">Contact</h1>
+                        <p class="text-red-100">Get in touch for collaboration and project inquiries</p>
+                    </div>
+                    <form class="bg-gray-200 border-2 border-gray-400" onsubmit="handleSubmit(event)">
+                        <div class="bg-blue-600 border-b-2 border-gray-400 p-4">
+                            <h3 class="font-bold text-white text-xl">Send a Message</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-900 mb-2">Name</label>
+                                    <input type="text" name="name" required class="w-full px-3 py-2 border-2 border-gray-400 bg-white focus:border-blue-600 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-900 mb-2">Email</label>
+                                    <input type="email" name="email" required class="w-full px-3 py-2 border-2 border-gray-400 bg-white focus:border-blue-600 outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-900 mb-2">Message</label>
+                                <textarea name="message" required rows="6" class="w-full px-3 py-2 border-2 border-gray-400 bg-white focus:border-blue-600 outline-none resize-none"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 font-bold transition-colors duration-200 border-2 border-blue-800">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-600 border-t-2 border-gray-800 mt-16 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+                <div class="text-center text-white space-y-2">
+                    <div class="text-lg font-bold">© 2024 Bearded Audio. All rights reserved.</div>
+                    <div class="text-gray-300">Professional audio engineering services</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Update time (dual timezone)
+        function updateTime() {
+            const now = new Date();
+            
+            // User's local time
+            const userTime = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('user-time').textContent = userTime;
+            
+            // Ian's time (US Pacific)
+            const ianTime = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'America/Los_Angeles'
+            });
+            document.getElementById('ian-time').textContent = ianTime;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Page navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+            document.getElementById('page-' + pageName).classList.remove('hidden');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-900', 'hover:bg-gray-200');
+            });
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Form submission
+        function handleSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const message = formData.get('message');
+            
+            const mailtoLink = `mailto:beardedaudio@gmail.com?subject=Portfolio Contact from ${encodeURIComponent(name)}&body=${encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\nMessage:\n' + message)}`;
+            window.location.href = mailtoLink;
+            
+            e.target.reset();
+            alert('Opening your email client...');
+        }
+    </script>
+</body>
+</html>

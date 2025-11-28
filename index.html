@@ -470,8 +470,8 @@
         function updateTime() {
             const now = new Date();
             
-            // User's local time
-            const userTime = now.toLocaleTimeString('en-US', { 
+            // User's local time (automatically detects their timezone)
+            const userTime = now.toLocaleTimeString([], { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: false 

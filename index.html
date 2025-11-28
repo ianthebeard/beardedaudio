@@ -413,7 +413,7 @@
                     </div>
                     
                     <!-- Contact Form -->
-                    <form id="contact-form" class="bg-gray-200 border-2 border-gray-400" onsubmit="handleSubmit(event)" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
+                    <form id="contact-form" action="https://formspree.io/f/xblvwjva" method="POST" class="bg-gray-200 border-2 border-gray-400" onsubmit="handleSubmit(event)" style="box-shadow: inset 1px 1px 0px rgba(255,255,255,0.8), inset -1px -1px 0px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.3);">
                         <div class="bg-blue-600 border-b-2 border-gray-400 p-4">
                             <h3 class="font-bold text-white text-xl">Send a Message</h3>
                         </div>
@@ -508,16 +508,37 @@
             menu.classList.toggle('hidden');
         }
 
-        // Form submission
-        function handleSubmit(e) {
-            e.preventDefault();
+        // Form submission with Formspree
+        var form = document.getElementById("contact-form");
+        
+        async function handleSubmit(event) {
+            event.preventDefault();
+            var data = new FormData(event.target);
             
-            // Hide the form and show confirmation message
-            document.getElementById('contact-form').classList.add('hidden');
-            document.getElementById('confirmation-message').classList.remove('hidden');
-            
-            // Reset the form for next time
-            e.target.reset();
+            fetch(event.target.action, {
+                method: form.method,
+                body: data,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Hide the form and show confirmation message
+                    document.getElementById('contact-form').classList.add('hidden');
+                    document.getElementById('confirmation-message').classList.remove('hidden');
+                    form.reset();
+                } else {
+                    response.json().then(data => {
+                        if (Object.hasOwn(data, 'errors')) {
+                            alert("Error: " + data["errors"].map(error => error["message"]).join(", "));
+                        } else {
+                            alert("Oops! There was a problem submitting your form");
+                        }
+                    })
+                }
+            }).catch(error => {
+                alert("Oops! There was a problem submitting your form");
+            });
         }
         
         // Reset contact form to allow sending another message

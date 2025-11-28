@@ -476,6 +476,10 @@
                 minute: '2-digit',
                 hour12: false 
             });
+            
+            // Get user's timezone
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
             document.getElementById('user-time').textContent = userTime;
             
             // Ian's time (US Pacific)
@@ -486,6 +490,9 @@
                 timeZone: 'America/Los_Angeles'
             });
             document.getElementById('ian-time').textContent = ianTime;
+            
+            // Debug: log the detected timezone (you can remove this later)
+            console.log('Detected timezone:', userTimezone);
         }
         setInterval(updateTime, 1000);
         updateTime();

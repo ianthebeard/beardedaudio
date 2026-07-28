@@ -29,7 +29,7 @@ BA.data = {
     // Shown as stat blocks on the file-select screen. Edit freely.
     stats: [
       { k: 'CLASS',    v: 'EDITOR'   },
-      { k: 'SPECIALTY', v: 'DIALOGUE' },
+      { k: 'SPECIALTY', v: 'SOUND DESIGN' },
       { k: 'BASED',    v: 'US / PST' },
       { k: 'STATUS',   v: 'AVAILABLE' }
     ]
@@ -40,11 +40,11 @@ BA.data = {
      names and counts only. Kept here because they cost nothing and
      save re-typing if a subtitle is ever wanted back. */
   sections: [
-    { id: 'podcasts', name: 'PODCASTS', icon: '🎙', sub: 'Editing, mixing & mastering',   title: 'PODCAST ENGINEERING', blurb: 'Editing, mixing and post-production for shows that need to sound like someone cared.' },
+    { id: 'podcasts', name: 'PODCASTS', icon: '🎙', sub: 'Editing, mixing & mastering',   title: 'PODCAST ENGINEERING', blurb: 'Editing, mixing and post-production for shows that want to sound raw and real.' },
     { id: 'games',    name: 'GAME AUDIO', icon: '🎮', sub: 'SFX & interactive sound',      title: 'GAME SOUND DESIGN',   blurb: 'Sound effects, foley and interactive audio. Mostly born in game jams.' },
-    { id: 'music',    name: 'MUSIC',     icon: '🎸', sub: 'My own & bands I play in',      title: 'MUSIC',               blurb: 'Things I have written, played on, or been in a band for.' },
-    { id: 'asmr',     name: 'ASMR',      icon: '🎧', sub: 'Sound design you can sleep to', title: 'ASMR',                blurb: 'Relaxing audio with an emphasis on sound design rather than whispering into a mic.' },
-    { id: 'about',    name: 'ABOUT',     icon: '📼', sub: 'The human behind the beard',    title: 'ABOUT',               blurb: 'Who you would actually be working with.' },
+    { id: 'music',    name: 'MUSIC',     icon: '🎸', sub: 'My own & bands I play in',      title: 'MUSIC',               blurb: 'I mostly play the guitar and scream.' },
+    { id: 'asmr',     name: 'ASMR',      icon: '🎧', sub: 'Sound design you can sleep to', title: 'ASMR',                blurb: 'Relaxing audio with an emphasis on sound design.' },
+    { id: 'about',    name: 'ABOUT',     icon: '📼', sub: 'The human behind the beard',    title: 'ABOUT',               blurb: 'Look mom, I made a site.' },
     { id: 'contact',  name: 'CONTACT',   icon: '📧', sub: 'Start a project',               title: 'CONTACT',             blurb: 'Tell me what you are making and when you need it.' }
   ],
 

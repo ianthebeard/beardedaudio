@@ -21,7 +21,7 @@ BA.sfx = (function () {
   var noiseBuf = null;
 
   /* Drop real files here as they arrive, e.g.
-     move: 'assets/audio/ui/ui-move.wav'                          */
+     move: '/assets/audio/ui/ui-move.wav'                          */
   var files = {
     move: null, select: null, back: null, hover: null, error: null,
     boot: null, achievement: null, pageIn: null, secret: null,

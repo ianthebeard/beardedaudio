@@ -20,15 +20,44 @@
     return localStorage.getItem(SECRET_KEY) === '1';
   };
 
-  /* ══ Routes ══════════════════════════════════════════════════ */
+  /* ══ Routes ══════════════════════════════════════════════════
+     Real paths, not fragments. Search engines do not index what
+     comes after a `#`, so the old `#/games` scheme meant the whole
+     site was a single URL no matter how many sections it had. Each
+     section is now /games/ and has a real prerendered file behind it
+     (see build.js) — the router below just takes over once the page
+     is up so navigation stays instant.
+
+     Trailing slashes throughout, matching vercel.json and the
+     canonical tags, so one page is never reachable at two URLs. */
   function routeFor(id) {
     if (id === 'secret' && !BA.secretUnlocked()) return BA.views.missing;
     return BA.views[id] || BA.views.missing;
   }
 
+  function idFromPath(path) {
+    var p = String(path || '').replace(/^\/+|\/+$/g, '').trim();
+    return p || 'home';
+  }
+
+  function pathFor(id) {
+    return id === 'home' ? '/' : '/' + id + '/';
+  }
+
   function currentId() {
+    return idFromPath(location.pathname);
+  }
+
+  /* Links shared before the move still arrive as /#/games. Rewrite
+     them to the real path so the URL people copy onward is the
+     canonical one, and so currentId() sees a section rather than the
+     home page. replaceState, not pushState — the fragment form should
+     not earn its own back-button entry. */
+  function upgradeLegacyHash() {
     var h = location.hash.replace(/^#\/?/, '').trim();
-    return h || 'home';
+    if (!h || h === 'main') return false;
+    history.replaceState(null, '', pathFor(h) + location.search);
+    return true;
   }
 
   BA.render = function () {
@@ -59,36 +88,47 @@
     var tour = BA.data.sections.every(function (s) { return BA.ach.has('sec_' + s.id); });
     if (tour) BA.ach.award('tour');
 
-    // Known ids only — the fallback used to echo whatever was in the
-    // hash, so a junk URL put its own text in the browser tab.
-    var known = {
-      home:     'Bearded Audio — Ian Tomlinson, freelance audio editor',
-      trophies: 'ACHIEVEMENTS — Bearded Audio',
-      secret:   'NAME THAT SOUND — Bearded Audio'
-    };
-    var section = BA.data.sections.filter(function (s) { return s.id === id; })[0];
-    document.title = known[id] || (section
-      ? section.name + ' — Bearded Audio'
-      : 'NOT FOUND — Bearded Audio');
+    // Straight from BA.data.seo, so an in-place navigation lands on
+    // exactly the title and description build.js baked into that
+    // page's file. Unknown ids fall through to the 404 entry rather
+    // than echoing whatever was in the URL into the browser tab.
+    var meta = BA.data.seo[id] || BA.data.seo.missing;
+    document.title = meta.title;
+    var desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', meta.description);
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', BA.data.site.url + pathFor(id));
   };
 
   function go(id) {
     userNavigated = true;
-    location.hash = '#/' + id;
-  }
-
-  window.addEventListener('hashchange', function () {
+    if (currentId() === id) return;
+    history.pushState(null, '', pathFor(id));
     BA.sfx.play('pageIn');
     BA.render();
+  }
+
+  window.addEventListener('popstate', function () {
+    BA.sfx.play('pageIn');
+    BA.render();
+  });
+
+  /* Anything that still points at a fragment — an old bookmark, a link
+     in someone's DMs — lands here. Upgrade it and render. */
+  window.addEventListener('hashchange', function () {
+    if (upgradeLegacyHash()) {
+      BA.sfx.play('pageIn');
+      BA.render();
+    }
   });
 
   /* ══ Nav ═════════════════════════════════════════════════════ */
   function buildNav() {
     nav.innerHTML = BA.data.sections.map(function (s) {
-      return '<a class="nav-btn" href="#/' + s.id + '" data-nav="' + s.id + '">' + BA.views.esc(s.name) + '</a>';
+      return '<a class="nav-btn" href="' + pathFor(s.id) + '" data-nav="' + s.id + '">' + BA.views.esc(s.name) + '</a>';
     }).join('');
     if (BA.secretUnlocked()) {
-      nav.innerHTML += '<a class="nav-btn is-secret" href="#/secret" data-nav="secret">🕹 SECRET</a>';
+      nav.innerHTML += '<a class="nav-btn is-secret" href="/secret/" data-nav="secret">🕹 SECRET</a>';
     }
   }
 
@@ -115,7 +155,7 @@
 
   function runBoot() {
     var bootEl = document.getElementById('boot');
-    var deepLink = location.hash && currentId() !== 'home';
+    var deepLink = currentId() !== 'home';
     var alreadyBooted = sessionStorage.getItem(BOOT_KEY) === '1';
 
     if (deepLink || alreadyBooted) {
@@ -334,8 +374,7 @@
           if (active && active.classList.contains('is-active')) {
             e.preventDefault();
             BA.sfx.play('select');
-            userNavigated = true;
-            location.hash = active.getAttribute('href');
+            go(idFromPath(active.pathname));
           }
           return;
         }
@@ -424,15 +463,28 @@
       if (window.innerWidth > 860 && nav.classList.contains('open')) closeMenu();
     });
 
-    // Any in-page link counts as user navigation
+    /* Internal links are real hrefs now, so they work with JS off, in
+       a crawler, and on middle-click. When JS is present we intercept
+       and route in place instead, which keeps the screen wipe and the
+       audio state. Everything a browser normally does specially —
+       new tab, modifier click, off-site, download, the skip link —
+       is handed straight back to the browser. */
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a');
       if (!a) return;
       if (a.hasAttribute('data-out')) BA.ach.award('outbound');
-      if (a.getAttribute('href') && a.getAttribute('href').charAt(0) === '#') {
-        userNavigated = true;
-        BA.sfx.play('select');
-      }
+
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (a.target && a.target !== '_self') return;
+      if (a.hasAttribute('download')) return;
+      if (a.origin !== location.origin) return;
+      // #main and friends: same page, jump to an anchor
+      if (a.hash && a.pathname === location.pathname) return;
+
+      e.preventDefault();
+      BA.sfx.play('select');
+      go(idFromPath(a.pathname));
     });
 
     // Hover blips on the things that should feel clicky
@@ -455,6 +507,9 @@
   }
 
   /* ══ Go ══════════════════════════════════════════════════════ */
+  // Before anything reads the route: a legacy /#/games arrival has to
+  // become /games/ or the first render lands on the home screen.
+  upgradeLegacyHash();
   buildNav();
   initCRT();
   initSound();

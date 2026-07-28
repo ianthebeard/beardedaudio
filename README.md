@@ -1,10 +1,22 @@
 # Bearded Audio
 
-Static site. No build step, no dependencies to install. Push to `main` and Vercel serves it.
+Static site. No dependencies to install. Push to `main` and Vercel serves it.
 
 ## Editing content
 
-**Almost everything you'll ever want to change lives in [`assets/js/data.js`](assets/js/data.js).** Episodes, games, tracks, achievements, minigame rounds, your bio, the contact form endpoint. No markup needs touching to add a project.
+**Almost everything you'll ever want to change lives in [`assets/js/data.js`](assets/js/data.js).** Episodes, games, tracks, achievements, minigame rounds, your bio, the contact form endpoint, and the titles and descriptions search engines show. No markup needs touching to add a project.
+
+### ⚠️ Run the build after editing content
+
+```sh
+node build.js
+```
+
+Then commit what it changed. Nothing to install — it uses Node's standard library only.
+
+Each section is a real page (`/podcasts/`, `/games/`, …) with its content written into the HTML, because search engines don't index anything after a `#` and most link previewers and AI crawlers don't run JavaScript at all. `build.js` generates those pages from `data.js`, so **content edits don't reach the live site until you rebuild.** It also writes `sitemap.xml` and `404.html`.
+
+The generated files are committed to the repo — that's what Vercel serves. `index.html` is both the template and the home page: everything between the `seo:`, `nav:` and `prerender:` markers is regenerated, everything outside them is yours.
 
 ```
 index.html              page shell — rarely needs editing
@@ -44,8 +56,8 @@ Add to the `nts` array in `data.js`. Set `audio` to a clip path, or leave it `nu
 
 ## How the site works
 
-- **Boot** — CRT power-on and PRESS START on first arrival. Skippable with any input, auto-advances after 2.5s, remembered for the session. Deep links (`#/games`) bypass it entirely so shared links go straight to content.
-- **Routing** — hash-based, so every section is linkable and the back button works.
+- **Boot** — CRT power-on and PRESS START on first arrival. Skippable with any input, auto-advances after 2.5s, remembered for the session. Deep links (`/games/`) bypass it entirely so shared links go straight to content.
+- **Routing** — real paths via the History API, over prerendered files. Every section is a URL a search engine can index, the back button works, and links still work with JavaScript off. Old `#/games` links redirect themselves to `/games/`.
 - **Keyboard** — `↑ ↓` move the file-select cursor, `Enter` selects, `Esc` returns to the menu, `← →` step between sections.
 - **Sound** — off by default, toggled in the header, remembered in localStorage.
 - **CRT** — toggleable, and fully disabled under `prefers-reduced-motion`.

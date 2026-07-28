@@ -63,7 +63,7 @@ BA.views = (function () {
 
     var slots = d().sections.map(function (s) {
       var c = counts(s.id);
-      return '<a class="fs-slot" href="#/' + s.id + '" data-slot>' +
+      return '<a class="fs-slot" href="/' + s.id + '/" data-slot>' +
         '<span class="fs-cursor" aria-hidden="true">▶</span>' +
         '<span class="fs-name">' + esc(s.name) + '</span>' +
         (c ? '<span class="fs-count">' + c + '</span>' : '<span></span>') +
@@ -71,7 +71,7 @@ BA.views = (function () {
     }).join('');
 
     if (BA.secretUnlocked && BA.secretUnlocked()) {
-      slots += '<a class="fs-slot fs-slot--secret" href="#/secret" data-slot>' +
+      slots += '<a class="fs-slot fs-slot--secret" href="/secret/" data-slot>' +
         '<span class="fs-cursor" aria-hidden="true">▶</span>' +
         '<span class="fs-name">NAME THAT SOUND</span>' +
         '<span class="fs-count">?????</span></a>';
@@ -110,7 +110,7 @@ BA.views = (function () {
               '<div class="meter-label"><span>COMPLETION</span><span id="meter-pct">' + pct + '%</span></div>' +
               '<div class="meter"><div class="meter-fill" id="meter-fill" style="width:' + pct + '%"></div></div>' +
               '<p class="fs-sub">Explore the site to fill this. ' +
-              '<a href="#/trophies">See what you have found →</a></p>' +
+              '<a href="/trophies/">See what you have found →</a></p>' +
             '</div>' +
             '<div class="panel panel--dark">' +
               '<p class="fs-sub" style="margin:0">Use <strong>↑ ↓</strong> to move, <strong>Enter</strong> to select, ' +
@@ -169,7 +169,7 @@ BA.views = (function () {
         '<div class="panel center mt">' +
           '<p class="section-title" style="font-size:.8rem">LOOKING FOR A JAM PARTNER</p>' +
           '<p>More projects on the way. If you are building something and the audio is the bit you keep putting off, that is the bit I enjoy.</p>' +
-          '<div class="btn-row mt" style="justify-content:center"><a class="btn btn--gold" href="#/contact">GET IN TOUCH</a></div>' +
+          '<div class="btn-row mt" style="justify-content:center"><a class="btn btn--gold" href="/contact/">GET IN TOUCH</a></div>' +
         '</div>',
       mount: function () {}
     };
@@ -188,7 +188,7 @@ BA.views = (function () {
             '<p style="font-size:.5rem;line-height:2;color:var(--lav-dim)">' +
             'This slot is reserved for music I have written<br>and bands I play in. Files are on the way.</p>' +
             '<div class="btn-row mt" style="justify-content:center">' +
-            '<a class="btn btn--ghost" href="#/podcasts">HEAR SOMETHING ELSE</a></div>' +
+            '<a class="btn btn--ghost" href="/podcasts/">HEAR SOMETHING ELSE</a></div>' +
           '</div>',
         mount: function () {}
       };
@@ -251,7 +251,7 @@ BA.views = (function () {
             '<div class="panel panel--dark"><h2 class="section-title">HOW IT USUALLY GOES</h2>' +
               '<p>You send me a rough file. I send back a short test edit so you can hear what I would do with it, before any money changes hands. If it is a fit, we talk turnaround and rate.</p>' +
               '<p>If I am not the right person, I probably know the person who is.</p>' +
-              '<div class="btn-row mt"><a class="btn btn--gold" href="#/contact">START A PROJECT</a></div>' +
+              '<div class="btn-row mt"><a class="btn btn--gold" href="/contact/">START A PROJECT</a></div>' +
             '</div>' +
           '</div>' +
         '</div>',
@@ -384,7 +384,7 @@ BA.views = (function () {
         '<p>SLOT EMPTY</p>' +
         '<p style="font-size:.5rem;color:var(--lav-dim)">That screen does not exist.</p>' +
         '<div class="btn-row mt" style="justify-content:center">' +
-        '<a class="btn btn--gold" href="#/home">BACK TO FILE SELECT</a></div></div>',
+        '<a class="btn btn--gold" href="/">BACK TO FILE SELECT</a></div></div>',
       mount: function () {}
     };
   }

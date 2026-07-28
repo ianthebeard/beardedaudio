@@ -324,7 +324,10 @@ body.crt-on #crt::after {
 }
 .nav-btn.is-secret { color: var(--gold); }
 
-.hud-tools { display: flex; gap: .35rem; align-items: center; }
+.hud-tools {
+  display: flex; gap: .35rem; align-items: center;
+  flex-wrap: wrap; justify-content: flex-end;
+}
 
 .tool {
   font-family: var(--ui); font-size: .5rem;
@@ -341,7 +344,15 @@ body.crt-on #crt::after {
 #tool-trophies { color: var(--gold); box-shadow: inset 0 0 0 2px var(--gold-dk); }
 #tool-trophies:hover { text-decoration: none; box-shadow: inset 0 0 0 2px var(--gold); }
 .tool-count { font-size: .5rem; }
-.tool-menu { display: none; font-size: .8rem; }
+/* Icon-only, so it has no label to give it width. Square it off at a
+   proper thumb-sized target instead of letting padding alone size it. */
+.tool-menu {
+  display: none;
+  font-size: 1rem;
+  justify-content: center;
+  min-width: 44px; min-height: 44px;
+  padding: .4rem;
+}
 /* Labels carry their own state text ("SFX ON"), so the buttons say
    what they do at every width without needing a drawer. */
 .tool-label { white-space: nowrap; }
@@ -1012,9 +1023,18 @@ body.crt-on #crt::after {
      row runs out of room the .hud-inner flex wraps them onto their
      own line rather than hiding anything. */
   .hud-inner { padding: .7rem .9rem; gap: .6rem; }
-  .tool { padding: .65rem .5rem; font-size: .42rem; }
+  .tool { padding: .65rem .5rem; font-size: .42rem; min-height: 44px; }
   .tool-label { font-size: .42rem; }
-  .hud-tools { gap: .3rem; }
+  /* After .tool, or the shrunk mobile font-size wins on equal
+     specificity and the burger glyph collapses to label size. */
+  .tool-menu { font-size: 1rem; min-width: 44px; padding: .4rem; }
+  /* The logo's margin-right:auto only right-aligns the tools while they
+     share a flex line with it. Auto margins resolve per line, so once
+     the row runs out of room and the tools wrap, they need their own
+     margin-left:auto or they land at flex-start. Safe to add only here:
+     above 860px #nav sits between the two, and a second auto margin
+     would split the slack and drag the nav to the middle. */
+  .hud-tools { gap: .3rem; margin-left: auto; }
 }
 
 @media (max-width: 400px) {

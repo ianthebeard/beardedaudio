@@ -244,13 +244,13 @@ BA.views = (function () {
           '<div class="panel"><h2 class="section-title">PLAYER PROFILE</h2>' + bio +
             '<div class="stat-row mt">' + stats + '</div></div>' +
           '<div class="stack">' +
-            '<div class="panel panel--dark"><h2 class="section-title">WHAT I ACTUALLY DO</h2>' +
-              '<p>Podcast editing, mixing and mastering. Audiobook post. Sound effects and foley for games. ASMR that leans on sound design rather than a mouth on a microphone.</p>' +
-              '<p>Most of the work is the invisible kind: making three people recorded in three different rooms sound like they are in one room, and taking the ums out without leaving a hole where they were.</p>' +
+            '<div class="panel panel--dark"><h2 class="section-title">WHAT I DO</h2>' +
+              '<p>Podcast editing, mixing and mastering. Sound effects and foley for games. All kinds of rock and roll. ASMR with an emphasis on relaxing sound design.</p>' +
+              '<p>Most of the voice editing work is the invisible kind: making three people recorded in three different rooms sound like they are in one room, and taking awkaward pauses or sections and making it sound like they were never there.</p>' +
             '</div>' +
             '<div class="panel panel--dark"><h2 class="section-title">HOW IT USUALLY GOES</h2>' +
               '<p>You send me a rough file. I send back a short test edit so you can hear what I would do with it, before any money changes hands. If it is a fit, we talk turnaround and rate.</p>' +
-              '<p>If I am not the right person, I will say so and point you at someone who is.</p>' +
+              '<p>If I am not the right person, I probably know the person who is.</p>' +
               '<div class="btn-row mt"><a class="btn btn--gold" href="#/contact">START A PROJECT</a></div>' +
             '</div>' +
           '</div>' +

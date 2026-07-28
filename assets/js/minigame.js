@@ -184,7 +184,7 @@ BA.nts = (function () {
         '<p class="nts-reveal">' + verdict + '</p>' +
         '<div class="btn-row mt" style="justify-content:center">' +
         '<button class="btn btn--gold" id="nts-again" type="button">PLAY AGAIN</button>' +
-        '<a class="btn btn--ghost" href="#/home">BACK TO MENU</a></div>';
+        '<a class="btn btn--ghost" href="/">BACK TO MENU</a></div>';
 
       stage.querySelector('#nts-again').addEventListener('click', function () {
         deck = shuffle(BA.data.nts).slice(0, Math.min(ROUNDS, BA.data.nts.length));

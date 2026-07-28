@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# /trophies/ and /secret/ carry a noindex meta tag instead of being
+# blocked here — a crawler has to be allowed to fetch a page before it
+# can see the noindex on it. Blocking them would keep them out of the
+# crawl but not reliably out of the index.
+
+Sitemap: https://beardedaudio.com/sitemap.xml

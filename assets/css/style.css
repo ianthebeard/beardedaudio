@@ -992,6 +992,27 @@ body.crt-on #crt::after {
   color: var(--lav-dim);
 }
 .center { text-align: center; }
+
+/* The prerendered track list build.js puts inside the deck host. The
+   tape deck replaces it the moment JS runs, so this is what crawlers
+   and no-JS visitors read — style it enough that it doesn't look like
+   a broken page to them. */
+.track-index {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: grid; gap: .8rem;
+}
+.track-index li {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  font-size: .9rem;
+}
+.track-index strong {
+  font-family: var(--ui); font-size: .62rem;
+  color: var(--white);
+}
 .mt { margin-top: var(--gap); }
 
 /* ══ Responsive ═══════════════════════════════════════════════════ */

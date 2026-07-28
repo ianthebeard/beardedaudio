@@ -188,9 +188,23 @@ Display size must be an exact multiple of source size. At 1.5× or 1.87× the br
 
 Two glyphs sat in the header — `▷` and `▩` — for the sound and CRT toggles. Completely opaque. The first fix (moving them into a labelled drawer on mobile) was worse: it created a panel whose visibility depended on viewport width, which then went stale when the window was resized.
 
-Final answer was the boring one: **put the state in the label.** `SFX ON`, `CRT OFF`. Always visible, no drawer, no hidden state, no resize bug. The header wraps to a second row on narrow screens rather than hiding anything.
+Final answer was the boring one: **put the state in the label.** `SFX ON`, `CRT OFF`. Always visible, no drawer, no hidden state, no resize bug.
 
-**Rule: if it's a toggle, write its current state in words.** An icon can say what a control is about. Only text says what it's currently doing.
+The icons hung around next to those labels for a while anyway, shrunk to 6px on a phone. They were decoration by then — the label was doing all the work — and deleting them bought back the ~30px the header needed to keep the logo and the tools on one row at phone widths instead of wrapping to two.
+
+**Rule: if it's a toggle, write its current state in words.** Only text says what a control is currently doing — and once the text is there, the icon beside it is just something else to line up.
+
+### The burger was a character, and characters have opinions
+
+The menu button drew its bars from `☰`. Press Start 2P has no such glyph, so it silently fell through to a system font — which brought its own baseline and its own line-height. The bars sat low in the button and the taller line box made the button a few pixels taller than the labelled ones beside it. Nothing in the CSS said "make this one bigger"; the font said it.
+
+**Rule: if a shape has to align to the pixel, draw it, don't type it.** Three CSS bars centre exactly and take whatever height you give them.
+
+### The on-screen D-pad was a good idea I couldn't land
+
+A floating D-pad and A button on touch devices, to make the file-select feel like a console. In practice it hovered over the content, needed 7rem of footer padding to scroll past, and duplicated what tapping a menu row already did. Fun idea, terrible execution — removed.
+
+**Rule: a metaphor is worth real estate only when it's the best way to do the thing.** The keyboard version earns its keep because arrow keys are already there. The touch version was a picture of a controller sitting on top of a website.
 
 ### I timed my own intro badly
 

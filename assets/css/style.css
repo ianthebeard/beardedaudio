@@ -435,6 +435,18 @@ body.crt-on #crt::after {
 .card-art img { width: 100%; height: 100%; object-fit: cover; }
 .card-art iframe { width: 100%; height: 100%; border: 0; display: block; }
 .card-body { padding: 1.1rem; display: flex; flex-direction: column; gap: .7rem; flex: 1; }
+
+/* Transports line up across a row instead of hanging off however long
+   the title and episode text above them happened to run. Cards are
+   grid items, so they already stretch to a shared row height; the auto
+   margin eats the leftover space above the player and drops it — plus
+   everything after it — to the bottom of every card.
+   Exactly one element per card may claim the auto margin. Two would
+   split the free space between them and neither would end up flush. */
+.card-body > [data-audio] { margin-top: auto; }
+
+/* Cards with no player (game projects) bottom-align their credit */
+.card-body:not(:has([data-audio])) > .credit:last-child { margin-top: auto; }
 .card-title {
   font-family: var(--ui); font-size: .68rem; line-height: 1.6;
   color: var(--white);

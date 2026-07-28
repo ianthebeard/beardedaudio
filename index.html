@@ -59,20 +59,17 @@
 
       <div class="hud-tools">
         <a href="#/trophies" class="tool" id="tool-trophies" title="Achievements">
-          <span aria-hidden="true">★</span>
           <span class="tool-count" id="trophy-count">0/0</span>
           <span class="sr-only">Achievements</span>
         </a>
         <button class="tool" id="tool-sound" type="button" aria-pressed="false" title="Toggle interface sound">
-          <span aria-hidden="true" id="sound-icon">▷</span>
           <span class="tool-label" id="sound-label">SFX OFF</span>
         </button>
         <button class="tool" id="tool-crt" type="button" aria-pressed="true" title="Toggle CRT effect">
-          <span aria-hidden="true">▩</span>
           <span class="tool-label" id="crt-label">CRT ON</span>
         </button>
         <button class="tool tool-menu" id="tool-menu" type="button" aria-expanded="false" aria-controls="nav" title="Menu">
-          <span aria-hidden="true">☰</span>
+          <span class="burger" aria-hidden="true"></span>
           <span class="sr-only">Menu</span>
         </button>
       </div>
@@ -91,15 +88,6 @@
 
 <!-- ══ Toasts ════════════════════════════════════════════════════ -->
 <div id="toasts" aria-live="polite" aria-atomic="false"></div>
-
-<!-- ══ Mobile D-pad (file select + minigame only) ════════════════ -->
-<div id="dpad" hidden aria-hidden="true">
-  <div class="dpad-cross">
-    <button class="dpad-btn dpad-up" data-key="ArrowUp" type="button">▲</button>
-    <button class="dpad-btn dpad-down" data-key="ArrowDown" type="button">▼</button>
-  </div>
-  <button class="dpad-a" data-key="Enter" type="button">A</button>
-</div>
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/audio.js"></script>

@@ -6,7 +6,6 @@
   var screen = document.getElementById('screen');
   var nav = document.getElementById('nav');
   var main = document.getElementById('main');
-  var dpad = document.getElementById('dpad');
 
   var CRT_KEY = 'ba_crt';
   var SECRET_KEY = 'ba_secret';
@@ -47,9 +46,6 @@
     cursor = 0;
     syncNav(id);
     updateTrophyCount();
-
-    // D-pad only where directional input actually does something
-    dpad.hidden = !(id === 'home');
 
     if (userNavigated) {
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -208,12 +204,10 @@
   /* ══ Sound toggle ════════════════════════════════════════════ */
   function initSound() {
     var btn = document.getElementById('tool-sound');
-    var icon = document.getElementById('sound-icon');
     var label = document.getElementById('sound-label');
 
     function paint() {
       var on = BA.sfx.isEnabled();
-      icon.textContent = on ? '♪' : '▷';
       label.textContent = on ? 'SFX ON' : 'SFX OFF';
       btn.setAttribute('aria-pressed', String(on));
       btn.title = on
@@ -353,13 +347,6 @@
         if (e.key === 'ArrowRight') { e.preventDefault(); BA.sfx.play('move'); go(ids[(i + 1) % ids.length]); }
         if (e.key === 'ArrowLeft')  { e.preventDefault(); BA.sfx.play('move'); go(ids[(i - 1 + ids.length) % ids.length]); }
       }
-    });
-
-    // Mobile D-pad fires the same keys
-    Array.prototype.forEach.call(dpad.querySelectorAll('[data-key]'), function (b) {
-      b.addEventListener('click', function () {
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: b.dataset.key }));
-      });
     });
   }
 

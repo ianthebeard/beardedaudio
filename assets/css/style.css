@@ -39,6 +39,10 @@
   --radius: 4px;
   --maxw: 1180px;
 
+  /* Shared height for the HUD tool buttons, so the drawn burger and
+     the text-sized ones can't drift apart. */
+  --tool-h: 44px;
+
   --wipe: 320ms;
 }
 
@@ -241,11 +245,18 @@ body.crt-on #crt::after {
   box-shadow: 0 4px 0 var(--shadow), 0 10px 28px rgba(0,0,0,.5);
 }
 
+/* flex-end plus the logo's margin-right:auto below is what keeps every
+   wrapped line right-aligned without disturbing the unwrapped one. An
+   auto margin outranks justify-content, so on a full line the logo
+   still swallows the slack and holds the left edge with the nav and
+   tools flush right; on a line the logo isn't on — the tool row once it
+   wraps — flex-end takes over and the tools stay right instead of
+   dropping back to flex-start. */
 .hud-inner {
   max-width: var(--maxw); margin: 0 auto;
   padding: .8rem 1.25rem;
   display: flex; align-items: center; gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: wrap; justify-content: flex-end;
 }
 
 .logo {
@@ -344,15 +355,31 @@ body.crt-on #crt::after {
 #tool-trophies { color: var(--gold); box-shadow: inset 0 0 0 2px var(--gold-dk); }
 #tool-trophies:hover { text-decoration: none; box-shadow: inset 0 0 0 2px var(--gold); }
 .tool-count { font-size: .5rem; }
-/* Icon-only, so it has no label to give it width. Square it off at a
-   proper thumb-sized target instead of letting padding alone size it. */
+/* The burger is drawn, not typed. A ☰ glyph is missing from Press
+   Start 2P, so it fell through to a system font whose line-height and
+   baseline are nothing like the pixel font's — the bars sat low in the
+   box and the fallback's tall line box made the button taller than the
+   labelled tools beside it. Bars in CSS centre exactly and let the
+   button take the same fixed height as its neighbours. */
 .tool-menu {
   display: none;
-  font-size: 1rem;
   justify-content: center;
-  min-width: 44px; min-height: 44px;
-  padding: .4rem;
+  padding: 0;
+  width: var(--tool-h); height: var(--tool-h);
+  flex: none;
 }
+.burger {
+  position: relative;
+  width: 18px; height: 3px;
+  background: currentColor;
+}
+.burger::before, .burger::after {
+  content: ''; position: absolute; left: 0;
+  width: 100%; height: 3px;
+  background: currentColor;
+}
+.burger::before { top: -6px; }
+.burger::after  { top: 6px; }
 /* Labels carry their own state text ("SFX ON"), so the buttons say
    what they do at every width without needing a drawer. */
 .tool-label { white-space: nowrap; }
@@ -958,45 +985,6 @@ body.crt-on #crt::after {
 .foot-line { font-family: var(--ui); font-size: .6rem; color: var(--lav); margin-bottom: .8rem; }
 .foot-sub { color: var(--lav-dim); font-size: .85rem; margin: 0; }
 
-/* ══ Mobile D-pad ═════════════════════════════════════════════════ */
-/* Touch devices only — on a desktop the real arrow keys already work,
-   and a floating pad just covers the content. */
-#dpad { display: none; }
-@media (hover: none) and (pointer: coarse) {
-  #dpad {
-    position: fixed; bottom: 1rem; left: 0; right: 0; z-index: 210;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 1.2rem;
-    pointer-events: none;
-  }
-}
-#dpad[hidden] { display: none !important; }
-.dpad-cross, .dpad-a { pointer-events: auto; }
-.dpad-cross { display: grid; gap: .4rem; }
-.dpad-btn, .dpad-a {
-  font-family: var(--ui);
-  background: var(--panel-hi);
-  color: var(--lav);
-  box-shadow: 0 4px 0 var(--void), inset 0 0 0 2px var(--purple-br);
-  border-radius: var(--radius);
-  width: 54px; height: 44px;
-  display: grid; place-items: center;
-  font-size: .7rem;
-  opacity: .92;
-}
-.dpad-a {
-  width: 62px; height: 62px; border-radius: 50%;
-  background: var(--gold); color: var(--void);
-  box-shadow: 0 4px 0 var(--gold-dk);
-  font-size: .85rem;
-}
-.dpad-btn:active, .dpad-a:active { transform: translateY(4px); box-shadow: none; }
-
-/* Room to scroll past the floating pad */
-@media (hover: none) and (pointer: coarse) {
-  #foot { padding-bottom: 7rem; }
-}
-
 /* ══ Utility ══════════════════════════════════════════════════════ */
 .empty {
   text-align: center; padding: 3rem 1.5rem;
@@ -1023,31 +1011,23 @@ body.crt-on #crt::after {
      row runs out of room the .hud-inner flex wraps them onto their
      own line rather than hiding anything. */
   .hud-inner { padding: .7rem .9rem; gap: .6rem; }
-  .tool { padding: .65rem .5rem; font-size: .42rem; min-height: 44px; }
+  .tool { padding: .65rem .5rem; font-size: .42rem; height: var(--tool-h); }
   .tool-label { font-size: .42rem; }
-  /* After .tool, or the shrunk mobile font-size wins on equal
-     specificity and the burger glyph collapses to label size. */
-  .tool-menu { font-size: 1rem; min-width: 44px; padding: .4rem; }
-  /* The logo's margin-right:auto only right-aligns the tools while they
-     share a flex line with it. Auto margins resolve per line, so once
-     the row runs out of room and the tools wrap, they need their own
-     margin-left:auto or they land at flex-start. Safe to add only here:
-     above 860px #nav sits between the two, and a second auto margin
-     would split the slack and drag the nav to the middle. */
-  .hud-tools { gap: .3rem; margin-left: auto; }
-}
-
-@media (max-width: 400px) {
-  .logo-text { font-size: .7em; }
-  .tool { padding: .6rem .4rem; }
+  /* After .tool, so the shared height rule above can't re-pad it. */
+  .tool-menu { padding: 0; }
+  .hud-tools { gap: .3rem; }
 }
 
 @media (max-width: 480px) {
-  /* Keep the logo and the tool cluster on one row */
+  /* Keep the logo and the tool cluster on one row. Every value below is
+     load-bearing for that: at 402px (iPhone 16 Pro) the row measures
+     ~385px, so there is about 17px of slack. Widen the type or the
+     padding and the tools wrap to a second line again. */
   .hud-inner { padding: .7rem .85rem; gap: .5rem; }
   .logo { gap: .4rem; padding: 0; }
-  .logo-text { font-size: .62rem; }
-  .tool { padding: .65rem .5rem; }
+  .logo-text { font-size: .56rem; }
+  .tool { padding: .65rem .35rem; }
+  .hud-tools { gap: .2rem; }
   .tool-count { font-size: .42rem; }
 
   #screen { padding: 1.25rem .85rem 3rem; }

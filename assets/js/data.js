@@ -108,7 +108,7 @@ BA.data = {
      names and counts only. Kept here because they cost nothing and
      save re-typing if a subtitle is ever wanted back. */
   sections: [
-    { id: 'podcasts', name: 'PODCASTS', icon: '🎙', sub: 'Editing, mixing & mastering',   title: 'PODCAST ENGINEERING', blurb: 'Editing, mixing and post-production for shows that want to sound raw and real.' },
+    { id: 'podcasts', name: 'PODCASTS', icon: '🎙', sub: 'Editing, mixing & mastering',   title: 'PODCAST & AUDIOBOOK EDITING', blurb: 'Editing, mixing and post-production for shows and audiobooks that want to sound raw and real.' },
     { id: 'games',    name: 'GAME AUDIO', icon: '🎮', sub: 'SFX & interactive sound',      title: 'GAME SOUND DESIGN',   blurb: 'Sound effects, foley and interactive audio. Mostly born in game jams.' },
     { id: 'music',    name: 'MUSIC',     icon: '🎸', sub: 'My own & bands I play in',      title: 'MUSIC',               blurb: 'I mostly play the guitar and scream.' },
     { id: 'asmr',     name: 'ASMR',      icon: '🎧', sub: 'Sound design you can sleep to', title: 'ASMR',                blurb: 'Relaxing audio with an emphasis on sound design.' },

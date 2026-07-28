@@ -54,7 +54,7 @@ BA.data = {
       title: 'ADHD Founders',
       link: 'https://adhdfounders.xyz',
       art: 'https://img.transistor.fm/cmbEtvo2ebzlcBb0AHl7hFlSkWuW7Y9P9e1lj2NdIlg/rs:fill:0:0:1/w:800/h:800/q:60/mb:500000/aHR0cHM6Ly9pbWct/dXBsb2FkLXByb2R1/Y3Rpb24udHJhbnNp/c3Rvci5mbS85ZGM0/YWNkMzgwODYyNjY5/YTk5N2JkMDIwMTk3/NzNiYy5wbmc.webp',
-      meta: 'Latest episode',
+      meta: 'Edited Episode',
       episode: '72: The Automation Paradox — Building Systems We Immediately Bypass',
       audio: 'https://media.transistor.fm/2f19d5d9/ed43c49f.mp3',
       role: 'Full edit, mix & master'
@@ -63,7 +63,7 @@ BA.data = {
       title: 'The Abidible Podcast',
       link: 'https://abidible.com',
       art: 'https://storage.buzzsprout.com/jhk3kxj3o7hbyk5mezom5v63e5lj?.jpg',
-      meta: 'Latest episode',
+      meta: 'Edited Episode',
       episode: '#074 "A Fear to Be Desired" (Luke 1:50)',
       audio: 'https://www.buzzsprout.com/2372319/episodes/18242123-074-a-fear-to-be-desired-luke-1-50.mp3',
       role: 'Full edit, mix & master'
@@ -72,7 +72,7 @@ BA.data = {
       title: 'Roll for Relaxation',
       link: 'https://rollforrelaxation.podbean.com',
       art: 'https://pbcdn1.podbean.com/imglogo/image-logo/7195087/RnR_14_by_14.jpg',
-      meta: 'Latest episode',
+      meta: 'Edited Episode',
       episode: 'Episode 12: Five Wines',
       audio: 'https://mcdn.podbean.com/mf/web/cjsu6j/RnREpisode12FinalAudio.mp3',
       role: 'Edit & sound design'

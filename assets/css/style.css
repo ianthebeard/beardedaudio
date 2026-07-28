@@ -1,0 +1,1102 @@
+/* ══════════════════════════════════════════════════════════════════
+   BEARDED AUDIO — 16-bit console shell
+   Hand-written. No framework. Edit content in assets/js/data.js.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Palette ────────────────────────────────────────────────────── */
+:root {
+  /* Saturated 16-bit push of the original purple identity */
+  --void:      #08040f;
+  --ink:       #120b24;
+  --panel:     #1d1338;
+  --panel-hi:  #2b1d54;
+  --panel-lo:  #150d2a;
+
+  --purple:    #4f43ae;   /* the original — now a mid-tone */
+  --purple-br: #6151d6;   /* darkened from #6d5ce8: white label text
+                             needs 4.5:1 at these small pixel sizes
+                             and #6d5ce8 only reached 4.45:1 */
+  --purple-lt: #9585ff;
+
+  --lav:       #c9c5ff;
+  --lav-dim:   #a49dda;   /* lifted from #8b84c4 — the old value sat at
+                             ~4.6:1 on panels, barely scraping AA once
+                             scanlines took a bite out of it */
+  --white:     #f7f4ff;
+
+  --gold:      #ffc447;
+  --gold-dk:   #c98c14;
+  --green:     #4ee87f;
+  --red:       #ff4f6d;
+  --cyan:      #45d9ff;
+
+  --shadow:    rgba(4, 2, 10, .85);
+
+  --ui: 'Press Start 2P', 'Courier New', monospace;
+  --body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --gap: 1.25rem;
+  --radius: 4px;
+  --maxw: 1180px;
+
+  --wipe: 320ms;
+}
+
+/* Alternate colourway, unlocked by the Konami code */
+:root[data-palette="dusk"] {
+  --ink:       #04161c;
+  --panel:     #08222c;
+  --panel-hi:  #0d3240;
+  --panel-lo:  #041a22;
+  --purple:    #128a86;
+  --purple-br: #19b8a6;
+  --purple-lt: #4fe3c8;
+  --lav:       #b6f5ea;
+  --lav-dim:   #6aa8a2;
+  --gold:      #ff9f45;
+  --cyan:      #ffe66d;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ink);
+  color: var(--lav);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.is-booting { overflow: hidden; }
+
+h1, h2, h3, h4 { font-family: var(--ui); line-height: 1.5; margin: 0; }
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+/* Pixelate deliberately — never globally. */
+.pixelate { image-rendering: pixelated; }
+
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Focus: always visible, always gold. */
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute; top: -100px; left: 1rem; z-index: 400;
+  background: var(--gold); color: var(--void);
+  font-family: var(--ui); font-size: .6rem;
+  padding: .9rem 1.1rem; border-radius: var(--radius);
+}
+.skip-link:focus { top: 1rem; }
+
+/* ══ CRT ══════════════════════════════════════════════════════════ */
+#crt {
+  position: fixed; inset: 0; z-index: 300;
+  pointer-events: none;
+}
+:root[data-crt="off"] #crt { display: none; }
+
+/* NOTE: scanlines and the aperture grille used to live here, in the
+   fixed overlay above everything. That is what made body copy hard to
+   read — 1px black lines and RGB triads sitting directly on top of
+   16px glyphs shreds them. They now render *behind* content instead
+   (see "CRT texture, behind the text" near the end of this file), so
+   every surface still carries the texture but the type sits on top of
+   it, crisp. What stays up here is only what doesn't touch legibility:
+   the roll, the phosphor bloom and the vignette. */
+
+/* Rolling refresh bar — slow, faint, the tell that it's a live tube */
+.crt-roll {
+  position: absolute; left: 0; right: 0; height: 28vh;
+  background: linear-gradient(
+    to bottom,
+    transparent, rgba(190, 175, 255, .035) 40%,
+    rgba(190, 175, 255, .06) 50%, rgba(190, 175, 255, .035) 60%, transparent
+  );
+  animation: roll 7.5s linear infinite;
+}
+@keyframes roll {
+  0%   { transform: translateY(-30vh); }
+  100% { transform: translateY(100vh); }
+}
+
+.crt-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, rgba(120, 95, 255, .10), transparent 65%);
+  animation: phosphor 4s ease-in-out infinite alternate;
+}
+@keyframes phosphor { from { opacity: .55; } to { opacity: 1; } }
+
+.crt-vignette {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 100% 100% at center, transparent 55%, rgba(0,0,0,.45) 88%, rgba(0,0,0,.92) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,.25), transparent 12%, transparent 88%, rgba(0,0,0,.25));
+}
+
+/* Power-on: the tube waking up */
+body.crt-on #crt::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--white);
+  animation: power-on 900ms ease-out forwards;
+}
+@keyframes power-on {
+  0%   { opacity: 1; transform: scaleY(.004) scaleX(1.1); }
+  35%  { opacity: .9; transform: scaleY(.006) scaleX(1); }
+  55%  { opacity: .5; transform: scaleY(1) scaleX(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+
+/* ══ Boot screen ══════════════════════════════════════════════════ */
+#boot {
+  position: fixed; inset: 0; z-index: 250;
+  background: var(--void);
+  display: grid; place-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+#boot[hidden] { display: none; }
+#boot.leaving { animation: boot-out 420ms ease-in forwards; }
+@keyframes boot-out {
+  to { opacity: 0; transform: scale(1.08); visibility: hidden; }
+}
+
+/* Boot beat sheet — keep in step with BOOT.autoAdvance in app.js
+   0.0s  tube powers on (white flash from #crt)
+   0.9s  logo assembles
+   2.0s  tagline
+   3.0s  PRESS START appears, then blinks
+   4.0s  skip hint
+   9.0s  auto-advance                                              */
+.boot-logo {
+  font-family: var(--ui);
+  font-size: clamp(1.5rem, 7vw, 3.6rem);
+  color: var(--white);
+  display: grid; gap: .35em;
+  text-shadow:
+    3px 3px 0 var(--purple),
+    6px 6px 0 var(--void),
+    0 0 26px rgba(150, 120, 255, .55);
+  animation: logo-in 1100ms 900ms steps(9) both;
+}
+@keyframes logo-in {
+  from { opacity: 0; transform: translateY(-18px) scaleY(.6); }
+  to   { opacity: 1; transform: none; }
+}
+
+.boot-tag {
+  font-family: var(--ui);
+  font-size: clamp(.42rem, 1.6vw, .68rem);
+  color: var(--lav-dim);
+  letter-spacing: .1em;
+  line-height: 2;
+  /* 43 characters, but `ch` ignores the .1em letter-spacing, so the
+     cap has to be ~10% wider than the raw character count. One line
+     where there's room, two on a phone. */
+  max-width: min(100%, 54ch);
+  margin: 1.8rem auto 3.2rem;
+  animation: fade-in 700ms 2s both;
+}
+
+.boot-start {
+  font-family: var(--ui);
+  font-size: clamp(.75rem, 2.6vw, 1.15rem);
+  color: var(--gold);
+  padding: .6em 1em;
+  letter-spacing: .06em;
+  text-shadow: 0 0 18px rgba(255, 196, 71, .5);
+  animation: fade-in 600ms 3s both, blink 1.15s 3.6s steps(1) infinite;
+}
+@keyframes blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: .18; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+
+/* ══ Shell / HUD ══════════════════════════════════════════════════ */
+#shell { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+#hud {
+  position: sticky; top: 0; z-index: 200;
+  background: linear-gradient(to bottom, var(--panel-lo), var(--void));
+  border-bottom: 3px solid var(--purple);
+  box-shadow: 0 4px 0 var(--shadow), 0 10px 28px rgba(0,0,0,.5);
+}
+
+.hud-inner {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: .8rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex; align-items: center; gap: .6rem;
+  font-family: var(--ui);
+  font-size: clamp(.7rem, 2vw, .95rem);
+  color: var(--lav);
+  text-shadow: 2px 2px 0 var(--void);
+  margin-right: auto;
+  padding: .25rem;
+  user-select: none;
+}
+.logo:hover { text-decoration: none; color: var(--white); }
+
+/* Level meter. Sits still normally, dances whenever the site is
+   playing audio — so the mark tells you something is making sound. */
+/* Sized and nudged in em so it tracks the logo's clamped font-size.
+   Press Start 2P is all-caps with no descenders — its ink stops about
+   0.12em above the baseline, and the em box carries dead space below
+   that. Centring the meter against the text *box* therefore hangs the
+   bars visibly below the letters. The translate drops them onto the
+   same optical floor as the type. */
+.logo-mark {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 1.15em; flex: none;
+  transform: translateY(-0.22em);
+}
+.logo-mark i {
+  display: block; width: 3px;
+  background: var(--purple-lt);
+  transition: height 180ms ease-out, background 180ms;
+}
+/* Percentages, so the bars scale with the container rather than
+   staying at fixed pixel heights when the logo resizes */
+.logo-mark i:nth-child(1) { height: 33%; }
+.logo-mark i:nth-child(2) { height: 72%; }
+.logo-mark i:nth-child(3) { height: 50%; }
+.logo-mark i:nth-child(4) { height: 89%; }
+.logo:hover .logo-mark i { background: var(--gold); }
+
+.logo-mark.is-live i {
+  background: var(--gold);
+  animation: meter .5s ease-in-out infinite alternate;
+}
+.logo-mark.is-live i:nth-child(1) { animation-duration: .38s; }
+.logo-mark.is-live i:nth-child(2) { animation-duration: .61s; }
+.logo-mark.is-live i:nth-child(3) { animation-duration: .29s; }
+.logo-mark.is-live i:nth-child(4) { animation-duration: .47s; }
+@keyframes meter { from { height: 17%; } to { height: 100%; } }
+
+.logo.poked .logo-mark i { animation: jolt 420ms ease-out; }
+@keyframes jolt {
+  0%   { height: 100%; background: var(--gold); }
+  100% { height: 22%; }
+}
+
+/* Nav */
+#nav { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.nav-btn {
+  font-family: var(--ui); font-size: .55rem;
+  letter-spacing: .04em;
+  padding: .75rem .85rem;
+  color: var(--lav);
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 3px 0 var(--void), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform 80ms, box-shadow 80ms, background 120ms, color 120ms;
+  position: relative;
+}
+.nav-btn:hover { background: var(--panel-hi); color: var(--white); }
+.nav-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--void), inset 0 1px 0 rgba(255,255,255,.12); }
+.nav-btn[aria-current="page"] {
+  background: var(--purple-br); color: var(--white);
+  box-shadow: 0 3px 0 var(--void), inset 0 0 0 2px var(--gold), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.nav-btn.is-secret { color: var(--gold); }
+
+.hud-tools { display: flex; gap: .35rem; align-items: center; }
+
+.tool {
+  font-family: var(--ui); font-size: .5rem;
+  display: flex; align-items: center; gap: .35rem;
+  padding: .7rem .6rem;
+  color: var(--lav-dim);
+  background: var(--panel-lo);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 2px var(--panel-hi);
+  transition: color 120ms, box-shadow 120ms;
+}
+.tool:hover { color: var(--white); box-shadow: inset 0 0 0 2px var(--purple-br); }
+.tool[aria-pressed="true"] { color: var(--green); box-shadow: inset 0 0 0 2px var(--green); }
+#tool-trophies { color: var(--gold); box-shadow: inset 0 0 0 2px var(--gold-dk); }
+#tool-trophies:hover { text-decoration: none; box-shadow: inset 0 0 0 2px var(--gold); }
+.tool-count { font-size: .5rem; }
+.tool-menu { display: none; font-size: .8rem; }
+/* Labels carry their own state text ("SFX ON"), so the buttons say
+   what they do at every width without needing a drawer. */
+.tool-label { white-space: nowrap; }
+
+/* ══ Screen / views ═══════════════════════════════════════════════ */
+#main { flex: 1; }
+
+#screen {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* The screen wipe. Note the negative side/bottom insets and the
+   `backwards` fill: an `inset(0 0 0 0)` end state persists after the
+   animation and clips to the border box, which silently cut the 3px
+   outline off every panel and ate the secret slot's glow entirely.
+   Widening the clip means it only ever reveals top-to-bottom, and
+   `backwards` drops the clip-path the moment the wipe finishes. */
+.view { animation: wipe-in var(--wipe) ease-out backwards; }
+@keyframes wipe-in {
+  from { opacity: 0; clip-path: inset(0 -60px 100% -60px); transform: translateY(8px); }
+  to   { opacity: 1; clip-path: inset(0 -60px -60px -60px); transform: none; }
+}
+
+/* ── Panels ─────────────────────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 0 3px var(--void),
+    0 6px 0 var(--shadow),
+    inset 0 1px 0 rgba(255,255,255,.10);
+  padding: 1.5rem;
+}
+.panel--dark { background: var(--panel-lo); }
+.panel--raised { background: var(--panel-hi); }
+
+/* Section banner */
+.banner {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-br) 100%);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px var(--void), 0 6px 0 var(--shadow);
+  padding: 1.6rem 1.5rem;
+  margin-bottom: var(--gap);
+  position: relative;
+  overflow: hidden;
+}
+.banner::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 6px, transparent 6px 12px);
+  pointer-events: none;
+}
+.banner h1 {
+  font-size: clamp(.95rem, 3.2vw, 1.55rem);
+  color: var(--white);
+  text-shadow: 3px 3px 0 rgba(0,0,0,.45);
+  margin-bottom: .7rem;
+}
+.banner p { color: var(--lav); margin: 0; font-size: .95rem; }
+
+.section-title {
+  font-size: clamp(.8rem, 2.6vw, 1.15rem);
+  color: var(--white);
+  text-shadow: 3px 3px 0 var(--void);
+  margin-bottom: 1.1rem;
+}
+
+/* ── Grids ──────────────────────────────────────────────────────── */
+.grid { display: grid; gap: var(--gap); }
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid--3 { grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.stack { display: grid; gap: var(--gap); }
+
+/* ── Cards ──────────────────────────────────────────────────────── */
+.card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px var(--void), 0 6px 0 var(--shadow);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 3px var(--void), 0 10px 0 var(--shadow), 0 0 32px rgba(120, 95, 255, .3);
+}
+.card-art { position: relative; background: var(--panel-lo); overflow: hidden; }
+.card-art--square { aspect-ratio: 1; }
+.card-art--wide { aspect-ratio: 16 / 9; }
+.card-art img { width: 100%; height: 100%; object-fit: cover; }
+.card-art iframe { width: 100%; height: 100%; border: 0; display: block; }
+.card-body { padding: 1.1rem; display: flex; flex-direction: column; gap: .7rem; flex: 1; }
+.card-title {
+  font-family: var(--ui); font-size: .68rem; line-height: 1.6;
+  color: var(--white);
+}
+.card-title a { color: var(--white); }
+.card-title a:hover { color: var(--gold); }
+.card-meta { font-size: .78rem; color: var(--lav-dim); text-transform: uppercase; letter-spacing: .08em; }
+.card-text { font-size: .9rem; color: var(--lav); }
+
+/* Tags — palette-native, replacing the old stock pastels */
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.tag {
+  font-family: var(--ui); font-size: .45rem;
+  padding: .45em .6em;
+  border-radius: 2px;
+  background: var(--panel-hi);
+  color: var(--lav);
+  box-shadow: inset 0 0 0 1px var(--purple);
+}
+.tag--gold  { color: var(--gold);  box-shadow: inset 0 0 0 1px var(--gold-dk); }
+.tag--cyan  { color: var(--cyan);  box-shadow: inset 0 0 0 1px var(--cyan); }
+.tag--green { color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+
+.credit {
+  background: var(--panel-lo);
+  border-left: 3px solid var(--gold);
+  padding: .8rem 1rem;
+  font-size: .85rem;
+}
+.credit strong { font-family: var(--ui); font-size: .55rem; color: var(--gold); display: block; margin-bottom: .5rem; }
+.credit em { color: var(--lav-dim); }
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  font-family: var(--ui); font-size: .6rem; letter-spacing: .04em;
+  padding: 1.05em 1.4em;
+  color: var(--white);
+  background: var(--purple-br);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--void), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: transform 80ms, box-shadow 80ms, filter 120ms;
+  text-align: center;
+}
+.btn:hover { filter: brightness(1.15); text-decoration: none; }
+.btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--void), inset 0 1px 0 rgba(255,255,255,.25); }
+.btn--gold { background: var(--gold); color: var(--void); }
+.btn--ghost { background: var(--panel-hi); color: var(--lav); }
+.btn--block { width: 100%; }
+.btn-row { display: flex; flex-wrap: wrap; gap: .8rem; }
+
+/* ══ FILE SELECT (home) ═══════════════════════════════════════════ */
+.fs-head {
+  font-family: var(--ui);
+  font-size: clamp(.7rem, 2.4vw, 1rem);
+  color: var(--gold);
+  text-shadow: 2px 2px 0 var(--void);
+  margin-bottom: 1.1rem;
+  display: flex; align-items: center; gap: .8rem;
+}
+.fs-head::after { content: ''; flex: 1; height: 3px; background: repeating-linear-gradient(90deg, var(--purple) 0 4px, transparent 4px 8px); }
+
+.fs-layout { display: grid; gap: var(--gap); grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .fs-layout { grid-template-columns: 1.35fr 1fr; } }
+
+.fs-list { display: grid; gap: .7rem; }
+
+.fs-slot {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 1.15rem 1.2rem;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px var(--void), 0 5px 0 var(--shadow);
+  transition: transform 110ms, box-shadow 110ms, background 140ms;
+  color: var(--lav);
+}
+.fs-slot:hover, .fs-slot.is-active {
+  background: var(--panel-hi);
+  color: var(--white);
+  transform: translateX(6px);
+  box-shadow: 0 0 0 3px var(--gold), 0 5px 0 var(--shadow), 0 0 26px rgba(255,196,71,.22);
+  text-decoration: none;
+}
+.fs-cursor { font-family: var(--ui); color: var(--gold); opacity: 0; font-size: .8rem; }
+.fs-slot:hover .fs-cursor, .fs-slot.is-active .fs-cursor { opacity: 1; animation: nudge .6s ease-in-out infinite alternate; }
+@keyframes nudge { to { transform: translateX(4px); } }
+
+.fs-name { font-family: var(--ui); font-size: .72rem; color: inherit; letter-spacing: .04em; }
+.fs-sub { font-size: .8rem; color: var(--lav-dim); }
+.fs-count {
+  font-family: var(--ui); font-size: .5rem;
+  color: var(--gold); white-space: nowrap;
+  justify-self: end;
+  background: var(--panel-lo);
+  padding: .55em .7em; border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--gold-dk);
+}
+.fs-slot--secret { box-shadow: 0 0 0 3px var(--gold), 0 5px 0 var(--shadow); animation: secret-pulse 1.6s ease-in-out infinite alternate; }
+@keyframes secret-pulse { to { box-shadow: 0 0 0 3px var(--gold), 0 5px 0 var(--shadow), 0 0 30px rgba(255,196,71,.5); } }
+
+/* Profile card */
+.profile { display: grid; gap: 1rem; }
+.profile-top { display: flex; gap: 1rem; align-items: center; }
+.profile-pic {
+  /* 144px = 2x the 72px source, so pixels stay square */
+  width: 144px; height: 144px; flex: none;
+  border-radius: var(--radius);
+  background: var(--panel-hi);
+  box-shadow: 0 0 0 3px var(--void), inset 0 0 0 2px var(--purple-br);
+  display: grid; place-items: center;
+  font-size: 2rem;
+  overflow: hidden;
+}
+.profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+.profile-name { font-family: var(--ui); font-size: .8rem; color: var(--white); margin-bottom: .5rem; }
+.profile-role { font-size: .82rem; color: var(--gold); text-transform: uppercase; letter-spacing: .08em; }
+.profile-bio { font-size: .92rem; }
+.stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+.stat {
+  background: var(--panel-lo); padding: .8rem;
+  border-radius: 2px; box-shadow: inset 0 0 0 2px var(--panel-hi);
+}
+.stat-k { font-family: var(--ui); font-size: .42rem; color: var(--lav-dim); display: block; margin-bottom: .5rem; }
+.stat-v { font-family: var(--ui); font-size: .62rem; color: var(--cyan); }
+
+/* Completion meter */
+.meter-wrap { display: grid; gap: .6rem; }
+.meter-label { font-family: var(--ui); font-size: .48rem; color: var(--lav-dim); display: flex; justify-content: space-between; gap: 1rem; }
+.meter {
+  height: 18px;
+  background: var(--panel-lo);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px var(--void);
+  overflow: hidden;
+  padding: 3px;
+}
+.meter-fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--gold) 0 6px, var(--gold-dk) 6px 8px);
+  transition: width 600ms cubic-bezier(.2,.9,.3,1);
+  min-width: 0;
+}
+
+/* ══ Audio player ═════════════════════════════════════════════════ */
+.ba-player {
+  background: var(--panel-lo);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 2px var(--purple), 0 2px 0 var(--void);
+  padding: .7rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .7rem;
+}
+.ba-play {
+  width: 42px; height: 42px; flex: none;
+  display: grid; place-items: center;
+  font-size: .8rem;
+  color: var(--void);
+  background: var(--gold);
+  border-radius: 2px;
+  box-shadow: 0 3px 0 var(--gold-dk);
+  transition: transform 80ms, box-shadow 80ms;
+}
+.ba-play:active { transform: translateY(3px); box-shadow: 0 0 0 var(--gold-dk); }
+.ba-play[data-state="playing"] { background: var(--green); box-shadow: 0 3px 0 #22a04f; }
+
+.ba-wave { position: relative; height: 42px; cursor: pointer; }
+.ba-wave canvas { width: 100%; height: 100%; display: block; }
+.ba-wave-fallback {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--ui); font-size: .42rem; color: var(--lav-dim);
+}
+.ba-time {
+  font-family: var(--ui); font-size: .45rem;
+  color: var(--lav-dim); white-space: nowrap;
+  min-width: 5.5ch; text-align: right;
+}
+
+/* ══ Tape deck ════════════════════════════════════════════════════ */
+.deck { display: grid; gap: var(--gap); align-items: start; }
+@media (min-width: 900px) { .deck { grid-template-columns: 1.1fr 1fr; } }
+
+.deck-machine {
+  background: linear-gradient(to bottom, var(--panel-hi), var(--panel-lo));
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px var(--void), 0 8px 0 var(--shadow), inset 0 1px 0 rgba(255,255,255,.12);
+  padding: 1.25rem;
+  display: grid; gap: 1.1rem;
+}
+
+/* The slot the cassette lives in */
+.deck-slot {
+  position: relative;
+  background: var(--void);
+  border-radius: 3px;
+  box-shadow: inset 0 3px 12px rgba(0,0,0,.9), inset 0 0 0 2px var(--panel);
+  padding: 1.1rem;
+  min-height: 190px;
+  display: grid; place-items: center;
+  overflow: hidden;
+}
+.deck-empty {
+  font-family: var(--ui); font-size: .55rem;
+  color: var(--lav-dim); opacity: .5; letter-spacing: .1em;
+}
+
+/* ── The cassette ─────────────────────────────────────────────── */
+.tape {
+  --tint: var(--purple-br);
+  width: 100%; max-width: 330px;
+  background: linear-gradient(to bottom, #2a2a32, #17171d);
+  border-radius: 5px;
+  box-shadow: 0 0 0 2px #000, 0 5px 0 rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.16);
+  padding: .6rem;
+  display: grid; gap: .5rem;
+  position: relative;
+}
+.tape[hidden] { display: none; }
+
+.tape-top {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--ui); font-size: .35rem;
+  color: #7c7c8a; letter-spacing: .1em;
+}
+.tape-side {
+  background: var(--tint); color: var(--void);
+  padding: .3em .5em; border-radius: 2px;
+  font-size: .38rem;
+}
+
+.tape-label {
+  background: linear-gradient(to bottom, var(--tint), rgba(0,0,0,.35)), var(--tint);
+  border-radius: 2px;
+  padding: .6rem .7rem;
+  display: grid; gap: .35rem;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+  min-height: 3.4rem;
+}
+.tape-title {
+  font-family: var(--ui); font-size: .55rem; line-height: 1.5;
+  color: #10101a;
+  text-shadow: 0 1px 0 rgba(255,255,255,.25);
+}
+.tape-band { font-size: .72rem; color: rgba(15,15,26,.75); line-height: 1.4; }
+
+/* Reel window */
+.tape-window {
+  background: #0a0a10;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px #000, inset 0 2px 6px rgba(0,0,0,.8);
+  padding: .55rem .9rem;
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  position: relative;
+}
+.reel {
+  --pack: 1;
+  --spin: 1s;
+  width: 52px; height: 52px; flex: none;
+  border-radius: 50%;
+  background: #1a1a22;
+  box-shadow: inset 0 0 0 2px #33333f;
+  display: grid; place-items: center;
+  position: relative;
+}
+.reel-pack {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  transform: scale(var(--pack));
+  background:
+    repeating-conic-gradient(from 0deg, #4a3a2a 0deg 14deg, #2e241a 14deg 28deg);
+  box-shadow: inset 0 0 0 3px #191119;
+  display: block;
+}
+.reel::after {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; border-radius: 50%;
+  box-shadow: 0 0 0 2px #000;
+  /* the six-tooth hub */
+  background-image: repeating-conic-gradient(from 0deg, #d8d8e2 0deg 40deg, #6a6a78 40deg 60deg);
+}
+.tape.is-rolling .reel-pack { animation: reel-spin var(--spin) linear infinite; }
+@keyframes reel-spin { to { transform: scale(var(--pack)) rotate(360deg); } }
+
+.tape-span {
+  flex: 1; height: 3px;
+  background: #4a3a2a;
+  box-shadow: 0 0 0 1px #000;
+}
+
+.tape-screws { position: absolute; inset: .35rem; pointer-events: none; }
+.tape-screws i {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background: #45454f; box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+}
+.tape-screws i:nth-child(1) { top: 0; left: 0; }
+.tape-screws i:nth-child(2) { top: 0; right: 0; }
+.tape-screws i:nth-child(3) { bottom: 0; left: 0; }
+.tape-screws i:nth-child(4) { bottom: 0; right: 0; }
+
+/* Eject / insert */
+.tape.is-out { animation: tape-out 320ms ease-in forwards; }
+@keyframes tape-out {
+  to { transform: translateY(150%) rotate(-3deg); opacity: 0; }
+}
+.tape.is-in { animation: tape-in 420ms cubic-bezier(.25,1.15,.4,1) both; }
+@keyframes tape-in {
+  0%   { transform: translateY(-165%) rotate(2.5deg); opacity: 0; }
+  60%  { opacity: 1; }
+  78%  { transform: translateY(5%) rotate(-.6deg); }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ── Transport ────────────────────────────────────────────────── */
+.deck-transport { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .8rem; }
+.deck-btn {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  font-size: .85rem; color: var(--void);
+  background: var(--gold);
+  border-radius: 3px;
+  box-shadow: 0 4px 0 var(--gold-dk);
+  transition: transform 80ms, box-shadow 80ms;
+}
+.deck-btn:active { transform: translateY(4px); box-shadow: none; }
+.deck-bar {
+  height: 16px; cursor: pointer;
+  background: var(--void);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px var(--panel);
+  padding: 3px;
+  overflow: hidden;
+}
+.deck-bar-fill {
+  height: 100%; width: 0;
+  background: repeating-linear-gradient(90deg, var(--gold) 0 5px, var(--gold-dk) 5px 7px);
+  border-radius: 1px;
+}
+.deck-time { font-family: var(--ui); font-size: .5rem; color: var(--lav-dim); min-width: 5ch; text-align: right; }
+
+.deck-nowplaying { display: grid; gap: .7rem; }
+.deck-note { font-size: .85rem; color: var(--lav-dim); margin: 0; }
+
+/* ── Track list ───────────────────────────────────────────────── */
+.tracklist { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.track {
+  width: 100%; text-align: left;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .9rem;
+  padding: .85rem 1rem;
+  background: var(--panel);
+  color: var(--lav);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px var(--void), 0 3px 0 var(--shadow);
+  transition: transform 100ms, box-shadow 100ms, background 140ms;
+}
+.track:hover { background: var(--panel-hi); color: var(--white); transform: translateX(4px); }
+.track.is-current {
+  background: var(--panel-hi); color: var(--white);
+  box-shadow: 0 0 0 2px var(--gold), 0 3px 0 var(--shadow);
+}
+.track-n { font-family: var(--ui); font-size: .5rem; color: var(--lav-dim); }
+.track.is-current .track-n { color: var(--gold); }
+.track-title { font-family: var(--ui); font-size: .55rem; line-height: 1.5; display: block; margin-bottom: .4rem; }
+.track-band { font-size: .78rem; color: var(--lav-dim); }
+
+/* Little EQ bars, animated only on the playing track */
+.track-eq { display: flex; align-items: flex-end; gap: 2px; height: 16px; opacity: 0; }
+.track.is-current .track-eq { opacity: .45; }
+.track.is-playing .track-eq { opacity: 1; }
+.track-eq i { width: 3px; height: 4px; background: var(--gold); display: block; }
+.track.is-playing .track-eq i { animation: eq .6s ease-in-out infinite alternate; }
+.track.is-playing .track-eq i:nth-child(2) { animation-duration: .43s; }
+.track.is-playing .track-eq i:nth-child(3) { animation-duration: .77s; }
+@keyframes eq { from { height: 3px; } to { height: 16px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tape.is-out, .tape.is-in { animation: none; }
+  .tape.is-rolling .reel-pack { animation: none; }
+  .track.is-playing .track-eq i { animation: none; height: 10px; }
+  .track:hover { transform: none; }
+}
+
+/* ══ Trophy room ══════════════════════════════════════════════════ */
+.trophy-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.trophy {
+  display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start;
+  padding: 1rem;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px var(--void), inset 0 0 0 2px transparent;
+}
+.trophy--got { box-shadow: 0 0 0 2px var(--void), inset 0 0 0 2px var(--gold); }
+.trophy--locked { opacity: .55; }
+.trophy-icon { font-size: 1.5rem; line-height: 1; filter: grayscale(1); }
+.trophy--got .trophy-icon { filter: none; }
+.trophy-name { font-family: var(--ui); font-size: .55rem; color: var(--lav); margin-bottom: .5rem; }
+.trophy--got .trophy-name { color: var(--gold); }
+.trophy-desc { font-size: .82rem; color: var(--lav-dim); }
+
+/* ══ Toasts ═══════════════════════════════════════════════════════ */
+#toasts {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 320;
+  display: grid; gap: .6rem; justify-items: end;
+  pointer-events: none;
+  max-width: min(340px, calc(100vw - 2rem));
+}
+.toast {
+  display: grid; grid-template-columns: auto 1fr; gap: .8rem; align-items: center;
+  background: var(--panel-hi);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px var(--gold), 0 8px 0 var(--shadow), 0 0 30px rgba(255,196,71,.3);
+  padding: .9rem 1rem;
+  animation: toast-in 320ms cubic-bezier(.2,1.2,.4,1) both;
+}
+.toast.out { animation: toast-out 280ms ease-in both; }
+@keyframes toast-in  { from { opacity: 0; transform: translateX(30px) scale(.9); } }
+@keyframes toast-out { to   { opacity: 0; transform: translateY(12px) scale(.95); } }
+.toast-icon { font-size: 1.4rem; }
+.toast-kicker { font-family: var(--ui); font-size: .42rem; color: var(--gold); display: block; margin-bottom: .45rem; }
+.toast-name { font-family: var(--ui); font-size: .55rem; color: var(--white); }
+
+/* ══ Minigame ═════════════════════════════════════════════════════ */
+.nts { display: grid; gap: var(--gap); max-width: 780px; margin: 0 auto; }
+.nts-stage {
+  display: grid; gap: 1.4rem; justify-items: center; text-align: center;
+  padding: 2.2rem 1.5rem;
+}
+.nts-round { font-family: var(--ui); font-size: .5rem; color: var(--lav-dim); letter-spacing: .1em; }
+.nts-speaker { font-size: 3.4rem; line-height: 1; }
+.nts-speaker.is-playing { animation: thump .5s ease-in-out infinite alternate; }
+@keyframes thump { to { transform: scale(1.14); } }
+/* Always 2×2 where there's room — a single row of four reads as a
+   toolbar, not as a set of choices. */
+.nts-answers { display: grid; gap: .7rem; grid-template-columns: 1fr; width: 100%; }
+@media (min-width: 560px) { .nts-answers { grid-template-columns: 1fr 1fr; } }
+.nts-answer {
+  font-family: var(--ui); font-size: .55rem; line-height: 1.6;
+  padding: 1.1em 1em;
+  background: var(--panel);
+  color: var(--lav);
+  border-radius: var(--radius);
+  box-shadow: 0 3px 0 var(--void), inset 0 0 0 2px var(--purple);
+  transition: transform 90ms, box-shadow 90ms, background 140ms;
+  text-align: left;
+}
+.nts-answer:hover:not(:disabled) { background: var(--panel-hi); color: var(--white); transform: translateY(-2px); }
+.nts-answer:disabled { cursor: default; }
+.nts-answer.is-right { background: var(--green); color: var(--void); box-shadow: 0 3px 0 #1e7a3d; }
+.nts-answer.is-wrong { background: var(--red); color: var(--void); box-shadow: 0 3px 0 #a02038; }
+.nts-answer.is-dim { opacity: .4; }
+.nts-score { font-family: var(--ui); font-size: .6rem; color: var(--gold); }
+.nts-reveal { font-size: .92rem; color: var(--lav); max-width: 46ch; }
+
+/* ══ Contact form ═════════════════════════════════════════════════ */
+.field { display: grid; gap: .6rem; margin-bottom: 1.1rem; }
+.field label { font-family: var(--ui); font-size: .5rem; color: var(--lav); letter-spacing: .06em; }
+.field input, .field textarea {
+  font-family: var(--body); font-size: 1rem;
+  padding: .85rem;
+  color: var(--white);
+  background: var(--panel-lo);
+  border: 0;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px var(--purple);
+  transition: box-shadow 120ms;
+  width: 100%;
+}
+.field input:focus, .field textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+.field textarea { resize: vertical; min-height: 150px; }
+.field-row { display: grid; gap: 1.1rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+.form-head {
+  background: var(--purple);
+  padding: 1rem 1.2rem;
+  font-family: var(--ui); font-size: .6rem; color: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.form-body { padding: 1.4rem; }
+.form-note { font-size: .82rem; color: var(--lav-dim); margin-top: 1rem; }
+
+/* ══ Footer ═══════════════════════════════════════════════════════ */
+#foot {
+  background: var(--void);
+  border-top: 3px solid var(--purple);
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+}
+.foot-line { font-family: var(--ui); font-size: .6rem; color: var(--lav); margin-bottom: .8rem; }
+.foot-sub { color: var(--lav-dim); font-size: .85rem; margin: 0; }
+
+/* ══ Mobile D-pad ═════════════════════════════════════════════════ */
+/* Touch devices only — on a desktop the real arrow keys already work,
+   and a floating pad just covers the content. */
+#dpad { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  #dpad {
+    position: fixed; bottom: 1rem; left: 0; right: 0; z-index: 210;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 1.2rem;
+    pointer-events: none;
+  }
+}
+#dpad[hidden] { display: none !important; }
+.dpad-cross, .dpad-a { pointer-events: auto; }
+.dpad-cross { display: grid; gap: .4rem; }
+.dpad-btn, .dpad-a {
+  font-family: var(--ui);
+  background: var(--panel-hi);
+  color: var(--lav);
+  box-shadow: 0 4px 0 var(--void), inset 0 0 0 2px var(--purple-br);
+  border-radius: var(--radius);
+  width: 54px; height: 44px;
+  display: grid; place-items: center;
+  font-size: .7rem;
+  opacity: .92;
+}
+.dpad-a {
+  width: 62px; height: 62px; border-radius: 50%;
+  background: var(--gold); color: var(--void);
+  box-shadow: 0 4px 0 var(--gold-dk);
+  font-size: .85rem;
+}
+.dpad-btn:active, .dpad-a:active { transform: translateY(4px); box-shadow: none; }
+
+/* Room to scroll past the floating pad */
+@media (hover: none) and (pointer: coarse) {
+  #foot { padding-bottom: 7rem; }
+}
+
+/* ══ Utility ══════════════════════════════════════════════════════ */
+.empty {
+  text-align: center; padding: 3rem 1.5rem;
+  font-family: var(--ui); font-size: .6rem; line-height: 2;
+  color: var(--lav-dim);
+}
+.center { text-align: center; }
+.mt { margin-top: var(--gap); }
+
+/* ══ Responsive ═══════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  #nav {
+    display: none;
+    order: 10;
+    width: 100%;
+    flex-direction: column;
+    padding-top: .8rem;
+  }
+  #nav.open { display: flex; }
+  .nav-btn { width: 100%; text-align: left; font-size: .6rem; padding: 1rem; }
+  .tool-menu { display: flex; }
+  .logo-text { font-size: .8em; }
+  /* Tools stay in the header at every width, labels and all. If the
+     row runs out of room the .hud-inner flex wraps them onto their
+     own line rather than hiding anything. */
+  .hud-inner { padding: .7rem .9rem; gap: .6rem; }
+  .tool { padding: .65rem .5rem; font-size: .42rem; }
+  .tool-label { font-size: .42rem; }
+  .hud-tools { gap: .3rem; }
+}
+
+@media (max-width: 400px) {
+  .logo-text { font-size: .7em; }
+  .tool { padding: .6rem .4rem; }
+}
+
+@media (max-width: 480px) {
+  /* Keep the logo and the tool cluster on one row */
+  .hud-inner { padding: .7rem .85rem; gap: .5rem; }
+  .logo { gap: .4rem; padding: 0; }
+  .logo-text { font-size: .62rem; }
+  .tool { padding: .65rem .5rem; }
+  .tool-count { font-size: .42rem; }
+
+  #screen { padding: 1.25rem .85rem 3rem; }
+  .panel, .banner { padding: 1.1rem; }
+  /* Rows are just a name and a count now, so the count still fits.
+     The cursor column goes away here, so the template has to lose a
+     column too — otherwise the count lands in the 1fr slot and the
+     chip stretches across the row. */
+  .fs-slot { gap: .7rem; padding: 1rem; grid-template-columns: 1fr auto; }
+  .fs-cursor { display: none; }
+  .fs-name { font-size: .62rem; }
+  .fs-count { font-size: .42rem; }
+  .stat-row { grid-template-columns: 1fr; }
+}
+
+/* ══ CRT texture, behind the text ═════════════════════════════════
+   The scanlines every surface carries. Because these are background
+   layers rather than a fixed overlay, glyphs render on top of them
+   and stay sharp — the texture reads on the panel, not through the
+   letterforms. Setting --scan to none is what the CRT toggle does. */
+:root {
+  --scan: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .22) 0 1px,
+    transparent 1px 3px
+  );
+  --grille: repeating-linear-gradient(
+    90deg,
+    rgba(255, 70, 110, .05) 0 1px,
+    rgba(70, 255, 130, .05) 1px 2px,
+    rgba(90, 120, 255, .05) 2px 3px
+  );
+}
+:root[data-crt="off"] { --scan: none; --grille: none; }
+
+/* The backdrop gets both, and stays put like a real screen */
+body {
+  background-image: var(--grille), var(--scan);
+  background-attachment: fixed, fixed;
+}
+
+/* Flat surfaces: scanlines layered over their existing colour */
+.panel, .card, .fs-slot, .track, .trophy, .nts-answer, .stat,
+.credit, .form-head, .tape-label, .deck-slot, .toast, .nav-btn, .tool {
+  background-image: var(--scan);
+}
+
+/* Gradient surfaces have to restate their gradient underneath */
+.banner {
+  background-image: var(--scan), linear-gradient(135deg, var(--purple) 0%, var(--purple-br) 100%);
+}
+#hud {
+  background-image: var(--scan), linear-gradient(to bottom, var(--panel-lo), var(--void));
+}
+.deck-machine {
+  background-image: var(--scan), linear-gradient(to bottom, var(--panel-hi), var(--panel-lo));
+}
+#foot { background-image: var(--scan); }
+
+/* The title screen is all display type, which takes the full texture
+   happily — it's body copy that scanlines destroy, not 3rem glyphs. */
+#boot { background-image: var(--grille), var(--scan); }
+
+/* Over artwork it's welcome — screenshots and cover art aren't text */
+.card-art::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--scan);
+}
+
+/* ══ Reduced motion ═══════════════════════════════════════════════
+   Kill everything that moves. The CRT keeps its texture but loses
+   the roll, the phosphor breathe and the power-on flash. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .crt-roll { display: none; }
+  .crt-glow { animation: none; opacity: .8; }
+  .card:hover { transform: none; }
+  .fs-slot:hover, .fs-slot.is-active { transform: none; }
+}
